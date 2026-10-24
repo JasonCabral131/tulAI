@@ -32,15 +32,31 @@ async function ensure(ws) {
     fs.writeFileSync(path.join(gd, 'info', 'exclude'), EXCLUDE.join('\n') + '\n');
   }
 }
+// Agent turns can finish close together and request a snapshot for the same
+// workspace. Git allows only one writer per index, so queue snapshot writes by
+// workspace instead of racing `git add` and colliding on index.lock.
+const snapshotQueues = new Map();
+
 async function create(ws, label) {
-  const why = unsafe(ws); if (why) throw new Error(why);
-  await ensure(ws);
-  await git(ws, ['add', '-A']);
-  await git(ws, ['commit', '-q', '--allow-empty', '-m', String(label || 'snapshot').slice(0, 200)]);
-  const hash = (await git(ws, ['rev-parse', 'HEAD'])).trim();
-  const n = (await git(ws, ['rev-list', '--count', 'HEAD'])).trim();
-  if (+n % 50 === 0) git(ws, ['gc', '--auto', '-q']).catch(() => {});
-  return { hash, label };
+  const key = path.resolve(ws);
+  const previous = snapshotQueues.get(key) || Promise.resolve();
+  let release;
+  const queued = new Promise((resolve) => { release = resolve; });
+  snapshotQueues.set(key, queued);
+  await previous.catch(() => {});
+  try {
+    const why = unsafe(ws); if (why) throw new Error(why);
+    await ensure(ws);
+    await git(ws, ['add', '-A']);
+    await git(ws, ['commit', '-q', '--allow-empty', '-m', String(label || 'snapshot').slice(0, 200)]);
+    const hash = (await git(ws, ['rev-parse', 'HEAD'])).trim();
+    const n = (await git(ws, ['rev-list', '--count', 'HEAD'])).trim();
+    if (+n % 50 === 0) git(ws, ['gc', '--auto', '-q']).catch(() => {});
+    return { hash, label };
+  } finally {
+    release();
+    if (snapshotQueues.get(key) === queued) snapshotQueues.delete(key);
+  }
 }
 async function list(ws, n = 60) {
   const why = unsafe(ws); if (why) return { error: why, snapshots: [] };

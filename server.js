@@ -355,9 +355,10 @@ http.createServer(async (req, res) => {
       return json(res, 200, { ok: true });
     }
     // ----- AI engines: which AI answers in each window (engines.js), the in-chat terminal (term.js), Hugging Face models (hf-models.js) -----
-    if (url.pathname.startsWith('/api/engines') || url.pathname.startsWith('/api/term/') || url.pathname.startsWith('/api/bot/hf/')) {
+    if (url.pathname.startsWith('/api/engines') || url.pathname.startsWith('/api/term/') || url.pathname === '/api/processes' || url.pathname.startsWith('/api/bot/hf/')) {
       const E = require('./engines'), ui = req.headers['x-tulai-ui'] === '1', cfgE = loadConfig(), roleOf = (r) => (r === 'bot' || r === 'desktop' ? r : ROLE);
       if (req.method !== 'GET' && !ui) return json(res, 403, { error: { message: 'Only Tulai can do that.' } }); // changes need Tulai's own page (a header other sites cannot send)
+      if (url.pathname === '/api/processes' && req.method === 'GET') return json(res, 200, await require('./process-monitor').list());
       if (url.pathname === '/api/engines' && req.method === 'GET') { const role = roleOf(url.searchParams.get('role')); return json(res, 200, { role, chosen: E.chosen(cfgE, role), label: E.label(cfgE, role), engines: E.list(cfgE, role) }); }
       if (url.pathname === '/api/engines/choose' && req.method === 'POST') {
         const b = await readBody(req), role = roleOf(b.role), id = String(b.id || ''), eng = E.list(cfgE, role).find((x) => x.id === id);
