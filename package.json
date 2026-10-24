@@ -46,7 +46,6 @@
       "helper-bot.js",
       "local-fit.js",
     "status-report.js",
-    "process-monitor.js",
     "git-prefs.js",
       "report-charts.js",
       "helper-window.js",

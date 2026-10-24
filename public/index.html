@@ -764,13 +764,12 @@ button.pi:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 
 <section id="panel" class="panel hidden">
   <div class="ptabs">
-    <button data-tab="files" class="on">Files</button><button data-tab="changes">Changes</button><button data-tab="term">Terminal</button><button data-tab="proc">Processes</button><button data-tab="shots">Screens</button><button data-tab="dev">Device</button><button data-tab="snaps">Snapshots</button><button data-tab="web">Browser</button>
+    <button data-tab="files" class="on">Files</button><button data-tab="changes">Changes</button><button data-tab="term">Terminal</button><button data-tab="shots">Screens</button><button data-tab="dev">Device</button><button data-tab="snaps">Snapshots</button><button data-tab="web">Browser</button>
     <span class="sp"></span><button id="refreshPanel" title="Refresh">↻</button><button id="closePanel">✕</button>
   </div>
   <div class="pbody" id="p_files"><div id="tree"></div><div id="fileView"></div></div>
   <div class="pbody" id="p_changes" hidden></div>
   <div class="pbody" id="p_term" hidden><pre id="termOut"></pre><div class="termin"><span>$</span><input id="termIn" placeholder="Run a command in the workspace…" spellcheck="false"></div></div>
-  <div class="pbody" id="p_proc" hidden><div class="note">Live view of Tulai Desktop and the background processes it started. Refreshes every few seconds while open.</div><div id="processList" aria-live="polite"></div></div>
   <div class="pbody" id="p_shots" hidden>
     <input id="shUrl" class="shin" value="http://localhost:3000" spellcheck="false" placeholder="http://localhost:3000">
     <div class="shrow"><select id="shTarget"><option value="web">Chromium (built in)</option><option value="ios">iOS Simulator (Safari)</option><option value="android">Android emulator</option></select><select id="shDevice"></select></div>
@@ -1185,14 +1184,16 @@ function renderList() {
   if (filter) { h = vis.length ? vis.map(item).join('') : '<div class="more">No chats match.</div>'; $('chats').innerHTML = h; return; }
   const pins = vis.filter((c) => c.pinned);
   if (pins.length) { h += sec('pins', 'Pinned', pins.length); if (!shut.has('pins')) h += pins.map(item).join(''); }
-  const groups = new Map(); for (const c of vis.filter(c => c.workspace && !c.pinned)) { const k = c.workspace; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(c); }
+  const agents = vis.filter((c) => c.mission && !c.pinned);
+  if (agents.length) h += sec('agents', 'Agent chats', agents.length) + (!shut.has('agents') ? agents.slice(0, more.has('agents') ? 60 : 8).map(item).join('') + (agents.length > 8 && !more.has('agents') ? '<div class="more" data-more="agents">Show more</div>' : '') : '');
+  const groups = new Map(); for (const c of vis.filter(c => c.workspace && !c.pinned && !c.mission)) { const k = c.workspace; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(c); }
   if (groups.size) h += sec('projects', 'Projects', groups.size);
   if (!shut.has('projects')) for (const [k, list] of groups) {
     const id = 'f:' + k, open = !shut.has(id), nm = k.split('/').filter(Boolean).pop() || 'No project', lim = more.has(id) ? 99 : 5;
     h += `<div class="fold" data-fold="${esc(id)}" title="${esc(k)}">${open ? IC.folder : IC.folder}<span>${esc(nm)}</span><span class="n">${list.length}</span></div>`;
     if (open) h += `<div class="kids">${list.slice(0, lim).map(item).join('')}${list.length > lim ? `<div class="more" data-more="${esc(id)}">Show more (${list.length - lim})</div>` : ''}</div>`;
   }
-  const recent = vis.filter(c => !c.workspace && !c.pinned);
+  const recent = vis.filter(c => !c.workspace && !c.pinned && !c.mission);
   if (recent.length) h += sec('recents', 'Chats', recent.length);
   if (!shut.has('recents')) h += recent.slice(0, more.has('recents') ? 60 : 8).map(item).join('') + (recent.length > 8 && !more.has('recents') ? '<div class="more" data-more="recents">Show more</div>' : '');
   $('chats').innerHTML = h;
@@ -1639,7 +1640,7 @@ function togglePanel(v) { $('panel').classList.toggle('hidden', v === undefined 
 $('panelBtn').onclick = () => togglePanel(); $('closePanel').onclick = () => togglePanel(false);
 document.querySelectorAll('.ptabs [data-tab]').forEach((b) => b.onclick = () => {
   panelTab = b.dataset.tab; document.querySelectorAll('.ptabs [data-tab]').forEach((x) => x.classList.toggle('on', x === b));
-  for (const t of ['files', 'changes', 'term', 'proc', 'shots', 'dev', 'snaps', 'web']) $('p_' + t).hidden = t !== panelTab; refreshPanel();
+  for (const t of ['files', 'changes', 'term', 'shots', 'dev', 'snaps', 'web']) $('p_' + t).hidden = t !== panelTab; refreshPanel();
 });
 $('refreshPanel').onclick = () => refreshPanel();
 async function loadTree(rel, host) {
@@ -1663,20 +1664,7 @@ async function loadChanges() {
 }
 function refreshPanel() {
   if ($('panel').classList.contains('hidden')) return;
-  if (panelTab === 'files') loadTree('', $('tree')); else if (panelTab === 'changes') loadChanges(); else if (panelTab === 'proc') loadProcesses(); else if (panelTab === 'snaps') loadSnaps(); else if (panelTab === 'shots') loadShots(); else if (panelTab === 'dev') devInit();
-}
-let processRefresh;
-async function loadProcesses() {
-  clearTimeout(processRefresh);
-  if ($('panel').classList.contains('hidden') || panelTab !== 'proc') return;
-  const host = $('processList');
-  try {
-    const r = await api('/api/processes'), j = await r.json();
-    if (!r.ok) throw new Error(j.error?.message || 'Could not read processes.');
-    const rows = j.processes || [];
-    host.innerHTML = rows.length ? `<table style="width:100%;border-collapse:collapse;text-align:left"><thead><tr><th style="padding:6px">Process</th><th style="padding:6px">PID</th><th style="padding:6px">Running</th><th style="padding:6px">CPU</th><th style="padding:6px">Memory</th></tr></thead><tbody>${rows.map((p) => `<tr style="border-top:1px solid var(--line)"><td style="padding:7px 6px">${'　'.repeat(Math.min(p.depth || 0, 4))}${esc(p.label)}</td><td style="padding:7px 6px;font-variant-numeric:tabular-nums">${p.pid}</td><td style="padding:7px 6px;font-variant-numeric:tabular-nums">${esc(p.elapsed)}</td><td style="padding:7px 6px">${Number(p.cpu || 0).toFixed(1)}%</td><td style="padding:7px 6px">${Number(p.memory || 0).toFixed(1)}%</td></tr>`).join('')}</tbody></table>` : '<div class="note">No background processes are running.</div>';
-  } catch (e) { host.innerHTML = `<div class="note">${esc(e.message)}</div>`; }
-  if (!$('panel').classList.contains('hidden') && panelTab === 'proc') processRefresh = setTimeout(loadProcesses, 3000);
+  if (panelTab === 'files') loadTree('', $('tree')); else if (panelTab === 'changes') loadChanges(); else if (panelTab === 'snaps') loadSnaps(); else if (panelTab === 'shots') loadShots(); else if (panelTab === 'dev') devInit();
 }
 // screens: UI screenshots from Chromium / iOS Simulator / Android
 let shGallery = []; try { shGallery = JSON.parse(localStorage.getItem('gc.shots') || '[]'); } catch {}
