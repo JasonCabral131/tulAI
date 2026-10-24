@@ -116,11 +116,85 @@ function upstream(cfg, method, p, body, signal) {
   return localUpstream(method, p, body, signal);
 }
 const sayStream = (text) => { const { Readable } = require('stream'), r = new Readable({ read() {} }); r.statusCode = 200; r.headers = {}; r.push(`data: ${JSON.stringify({ choices: [{ index: 0, delta: { content: text } }] })}\n\ndata: ${JSON.stringify({ choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] })}\n\ndata: [DONE]\n\n`); r.push(null); return r; };
-/** A provider with an API key (OpenAI-compatible): Groq, OpenRouter, OpenAI, Anthropic, DeepSeek, Mistral, Qwen Model Studio, Gemini, xAI, Together, or your own address. */
+/** Anthropic has its own Messages API; convert its response to the OpenAI stream format the app consumes. */
+async function anthropicUpstream(base, key, model, body, signal) {
+  const input = body && typeof body === 'object' ? body : {}, messages = [], systems = [];
+  const blocks = (content) => {
+    if (typeof content === 'string') return content;
+    if (!Array.isArray(content)) return '';
+    return content.flatMap((part) => {
+      if (!part) return [];
+      if (part.type === 'text') return [{ type: 'text', text: String(part.text || '') }];
+      if (part.type === 'image_url') {
+        const url = String(part.image_url && part.image_url.url || '');
+        const match = /^data:(image\/(?:jpeg|png|gif|webp));base64,([A-Za-z0-9+/=]+)$/.exec(url);
+        return match ? [{ type: 'image', source: { type: 'base64', media_type: match[1], data: match[2] } }] : [];
+      }
+      return [];
+    });
+  };
+  for (const message of input.messages || []) {
+    if (!message) continue;
+    if (message.role === 'system' || message.role === 'developer') {
+      const text = blocks(message.content);
+      if (typeof text === 'string' ? text : text.length) systems.push(text);
+      continue;
+    }
+    const role = message.role === 'assistant' ? 'assistant' : 'user';
+    let content = blocks(message.content);
+    if (message.role === 'tool') content = [{ type: 'tool_result', tool_use_id: String(message.tool_call_id || ''), content: typeof content === 'string' ? content : content.map((x) => x.text || '').join('\n') }];
+    if (message.role === 'assistant' && Array.isArray(message.tool_calls)) {
+      content = [...(Array.isArray(content) ? content : content ? [{ type: 'text', text: content }] : []), ...message.tool_calls.map((call) => {
+        const fn = call.function || {};
+        let args = {}; try { args = JSON.parse(fn.arguments || '{}'); } catch {}
+        return { type: 'tool_use', id: String(call.id || fn.name || 'tool'), name: String(fn.name || 'tool'), input: args };
+      })];
+    }
+    messages.push({ role, content: content || '' });
+  }
+  const payload = {
+    model,
+    max_tokens: Math.max(1, Number(input.max_tokens || input.max_completion_tokens || 2048)),
+    messages,
+  };
+  if (systems.length) payload.system = systems.flat().map((x) => typeof x === 'string' ? { type: 'text', text: x } : x).filter((x) => x && (typeof x === 'string' || x.text)).map((x) => typeof x === 'string' ? x : x.text).join('\n\n');
+  if (Number.isFinite(input.temperature)) payload.temperature = input.temperature;
+  if (Number.isFinite(input.top_p)) payload.top_p = input.top_p;
+  if (input.stop) payload.stop_sequences = Array.isArray(input.stop) ? input.stop : [input.stop];
+  if (Array.isArray(input.tools)) payload.tools = input.tools.filter((x) => x && x.type === 'function' && x.function).map((x) => ({ name: x.function.name, description: x.function.description || '', input_schema: x.function.parameters || { type: 'object', properties: {} } }));
+  if (input.tool_choice === 'required') payload.tool_choice = { type: 'any' };
+  else if (input.tool_choice && typeof input.tool_choice === 'object' && input.tool_choice.function) payload.tool_choice = { type: 'tool', name: input.tool_choice.function.name };
+
+  const response = await fetch(base + '/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' }, body: JSON.stringify(payload), signal });
+  const { Readable } = require('stream');
+  const result = Readable.from((async function* () {
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      yield JSON.stringify({ error: error.error || { message: `Anthropic returned HTTP ${response.status}` } });
+      return;
+    }
+    const data = await response.json();
+    const text = (data.content || []).filter((x) => x.type === 'text').map((x) => x.text || '').join('');
+    const toolCalls = (data.content || []).filter((x) => x.type === 'tool_use').map((x, index) => ({ index, id: x.id, type: 'function', function: { name: x.name, arguments: JSON.stringify(x.input || {}) } }));
+    const finish = data.stop_reason === 'max_tokens' ? 'length' : data.stop_reason === 'tool_use' ? 'tool_calls' : 'stop';
+    const events = [
+      { choices: [{ index: 0, delta: { role: 'assistant', content: text, ...(toolCalls.length ? { tool_calls: toolCalls } : {}) }, finish_reason: null }] },
+      { choices: [{ index: 0, delta: {}, finish_reason: finish }], usage: { prompt_tokens: data.usage && data.usage.input_tokens || 0, completion_tokens: data.usage && data.usage.output_tokens || 0, total_tokens: (data.usage && data.usage.input_tokens || 0) + (data.usage && data.usage.output_tokens || 0) } },
+    ];
+    for (const event of events) yield 'data: ' + JSON.stringify(event) + '\n\n';
+    yield 'data: [DONE]\n\n';
+  })());
+  result.statusCode = response.status;
+  result.headers = { 'content-type': response.ok ? 'text/event-stream' : 'application/json' };
+  return result;
+}
+
+/** A provider with an API key: OpenAI-compatible services plus Anthropic's Messages API. */
 function apiUpstream(cfg, eng, method, p, body, signal) {
   const E = require('./engines'), id = eng.id.slice(4), a = E.APIS[id] || {}, key = (cfg.engineKeys || {})[id], base = String(id === 'custom' ? (cfg.engineBases || {}).custom || '' : a.base || '').replace(/\/+$/, '');
   if (!key || !base) return Promise.resolve(sayStream(`${a.name || id} needs ${base ? 'its API key' : 'an address and an API key'}: add it in Settings → AI engines (or say **use our AI** to go back to the default).`));
   if (!eng.model) return Promise.resolve(sayStream(`Pick a ${a.name || id} model first: say **${id} models** to list them, then **use ${id} <model>**.`));
+  if (id === 'anthropic' && method === 'POST' && /\/chat\/completions$/.test(p)) return anthropicUpstream(base, key, eng.model, body, signal);
   if (body && typeof body === 'object') { body = { ...body, model: eng.model }; delete body.thinking; delete body.reasoning_effort; delete body.effort; }
   const u = new URL(base + String(p).replace(/^\/v1(?=\/)/, '')), data = body ? Buffer.from(JSON.stringify(body)) : null;
   const headers = { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(id === 'anthropic' ? { 'x-api-key': key, 'anthropic-version': '2023-06-01' } : {}), ...(data ? { 'Content-Length': data.length } : {}) };
