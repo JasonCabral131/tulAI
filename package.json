@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --mac --dir",
-    "prebuild": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js",
+    "prebuild": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js && node scripts/pack-versions.js",
     "test": "node scripts/test-all.js",
     "test:core": "node test/run.js",
     "test:activation": "node scripts/test-activation.js",
@@ -26,10 +26,10 @@
     "training": "node scripts/training-run.js run --evaluate",
     "training:skills": "node scripts/training-run.js run --skills --evaluate",
     "setup:check": "node scripts/check-setup.js",
-    "predmg": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js",
+    "predmg": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js && node scripts/pack-versions.js",
     "dmg": "electron-builder --mac dmg",
     "dmg:full": "TULAI_SLIM=0 electron-builder --mac dmg",
-    "predmg:full": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js",
+    "predmg:full": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js && node scripts/pack-versions.js",
     "test:acceptance": "node scripts/pack-acceptance.js --mode model",
     "test:acceptance:app": "node scripts/pack-acceptance.js --mode app"
   },

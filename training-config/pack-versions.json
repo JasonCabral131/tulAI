@@ -1,0 +1,57 @@
+{
+ "about": "Written by scripts/pack-versions.js at release time. A pack gets the release version only when its own content changed.",
+ "packs": {
+  "jira-mastery": {
+   "hash": "829ae1e6c859ceb12a7c4968c5c98de94695b84a5802d1a3934aa0509ad12e46",
+   "version": "1.1.0"
+  },
+  "git-mastery": {
+   "hash": "d65a6a135dc4fb85e36b138609bf0f732b5772cbbc283e4be5ab9b893195dae9",
+   "version": "1.1.0"
+  },
+  "reporting-mastery": {
+   "hash": "30ee3a612d81cf76214b1eeecc7034487296ce02dfc23a374573ec0e7806ab77",
+   "version": "1.1.0"
+  },
+  "meeting-skills": {
+   "hash": "ce708fa1ed38450a32d559a528cb976ff54a39a30b210e4dee0315a1c91f2509",
+   "version": "1.1.0"
+  },
+  "architect-ai": {
+   "hash": "7b15062089374a4baa5606bd7bff4195b29a62955243368c62f42e6c8e0fb66c",
+   "version": "1.1.0"
+  },
+  "code-review-ai": {
+   "hash": "a71040a38471aaced9a642a8532a2defd026a60887dba531fbf98ab550a46c21",
+   "version": "1.1.0"
+  },
+  "qa-test-ai": {
+   "hash": "da4e94bb18b460ec8be39836688ff00f1d0d49dac844e16c9300f0cda798e6c3",
+   "version": "1.1.0"
+  },
+  "frontend-ai": {
+   "hash": "86c3c8dd11c183ce7b1fea0fbaea48b423fdef9fd3b36d4093b2003fe30ccfb4",
+   "version": "1.1.0"
+  },
+  "eng-productivity-ai": {
+   "hash": "c7c6a3fa17fffe89602bf49cbaaffc47e2663fb8379c4a836ae95b13300180ac",
+   "version": "1.1.0"
+  },
+  "charts-reporting-ai": {
+   "hash": "2c1109a5af84a2033df33e45968a4b7a20488ce3832e2e78262917f71fb3961f",
+   "version": "1.1.0"
+  },
+  "coding-ai": {
+   "hash": "d37d6d803d4c2a467d2954d5d787755d0e1cf2d34e01f3e8ab7ef59d0267111c",
+   "version": "1.1.0"
+  },
+  "call-assistant-ai": {
+   "hash": "3769b0e5ddf9ac83bc8c9cead80c224dd2f0e9735daefe2d64aa9d5a30900168",
+   "version": "1.1.0"
+  },
+  "springboot-ai": {
+   "hash": "f3d755c37559b39f1c40ed86cfa4e7fcc66f4f262d795d97870e392fe8a7330a",
+   "version": "1.1.0"
+  }
+ }
+}
