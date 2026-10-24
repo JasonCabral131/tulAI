@@ -1,0 +1,110 @@
+[
+  {
+    "text": "open Safari",
+    "expected": "command",
+    "result": {
+      "kind": "command",
+      "command": "open safari"
+    },
+    "pass": true
+  },
+  {
+    "text": "buksan mo yung safari tapos hanapin mo yung pizza",
+    "expected": "task",
+    "result": {
+      "kind": "task",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "open Teams and start meeting notes",
+    "expected": "task",
+    "result": {
+      "kind": "task",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "don't open Safari, just explain what it is",
+    "expected": "question",
+    "result": {
+      "kind": "question",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "what is the difference between a mutex and a semaphore",
+    "expected": "question",
+    "result": {
+      "kind": "question",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "fix the login bug in my project",
+    "expected": "task",
+    "result": {
+      "kind": "task",
+      "command": "fix the login bug in gateway-chat"
+    },
+    "pass": true
+  },
+  {
+    "text": "paki open ng Teams",
+    "expected": "command",
+    "result": {
+      "kind": "command",
+      "command": "open teams"
+    },
+    "pass": true
+  },
+  {
+    "text": "open it again",
+    "expected": "command",
+    "result": {
+      "kind": "command",
+      "command": "open safari"
+    },
+    "pass": true
+  },
+  {
+    "text": "search for cats and dogs",
+    "expected": "command",
+    "result": {
+      "kind": "command",
+      "command": "search for cats and dogs"
+    },
+    "pass": true
+  },
+  {
+    "text": "open Safari then check my git status",
+    "expected": "task",
+    "result": {
+      "kind": "task",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "buksan ang Teams at simulan ang meeting notes",
+    "expected": "task",
+    "result": {
+      "kind": "task",
+      "command": ""
+    },
+    "pass": true
+  },
+  {
+    "text": "explain what a browser does",
+    "expected": "question",
+    "result": {
+      "kind": "question",
+      "command": ""
+    },
+    "pass": true
+  }
+]

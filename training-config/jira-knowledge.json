@@ -1,0 +1,281 @@
+{
+ "source": {
+  "title": "The Public Jira Dataset",
+  "authors": "Montgomery, Lüders, Maalej",
+  "doi": "10.5281/zenodo.15719919",
+  "record": "https://zenodo.org/records/15719919",
+  "license": "CC-BY-4.0",
+  "note": "Derived from the data-definition files of 16 public Jira repositories (issue types, link types, system fields). Changes: merged across repositories and shortened."
+ },
+ "issueTypes": [
+  {
+   "name": "Bug",
+   "description": "A problem which impairs or prevents the functions of the product.",
+   "repos": 16,
+   "subtask": false,
+   "theme": "Maintenance"
+  },
+  {
+   "name": "New Feature",
+   "description": "A new feature of the product, which has yet to be developed.",
+   "repos": 14,
+   "subtask": false,
+   "theme": "Requirements"
+  },
+  {
+   "name": "Epic",
+   "description": "Created by Jira Software - do not edit or delete. Issue type for a big user story that needs to be broken down.",
+   "repos": 14,
+   "subtask": false,
+   "theme": "Requirements"
+  },
+  {
+   "name": "Task",
+   "description": "A task that needs to be done.",
+   "repos": 13,
+   "subtask": false,
+   "theme": "Development"
+  },
+  {
+   "name": "Story",
+   "description": "Created by Jira Software - do not edit or delete. Issue type for a user story.",
+   "repos": 13,
+   "subtask": false,
+   "theme": "Requirements"
+  },
+  {
+   "name": "Improvement",
+   "description": "An improvement or enhancement to an existing feature or task.",
+   "repos": 12,
+   "subtask": false,
+   "theme": "Requirements"
+  },
+  {
+   "name": "Sub-task",
+   "description": "The sub-task of the issue",
+   "repos": 12,
+   "subtask": true,
+   "theme": "Development"
+  },
+  {
+   "name": "Technical task",
+   "description": "A technical task.",
+   "repos": 10,
+   "subtask": true,
+   "theme": "Development"
+  },
+  {
+   "name": "Documentation",
+   "description": "Documentation or Website",
+   "repos": 7,
+   "subtask": false,
+   "theme": "Maintenance"
+  }
+ ],
+ "linkTypes": [
+  {
+   "name": "Duplicate",
+   "inward": "is duplicated by",
+   "outward": "duplicates",
+   "canonical": "Duplicate",
+   "repos": 13
+  },
+  {
+   "name": "Cloners",
+   "inward": "is cloned by",
+   "outward": "clones",
+   "canonical": "Clone",
+   "repos": 12
+  },
+  {
+   "name": "Issue split",
+   "inward": "split from",
+   "outward": "split to",
+   "canonical": "Split",
+   "repos": 11
+  },
+  {
+   "name": "Relates",
+   "inward": "relates to",
+   "outward": "relates to",
+   "canonical": "Relate",
+   "repos": 8
+  },
+  {
+   "name": "Blocks",
+   "inward": "is blocked by",
+   "outward": "blocks",
+   "canonical": "Block",
+   "repos": 7
+  },
+  {
+   "name": "Problem/Incident",
+   "inward": "is caused by",
+   "outward": "causes",
+   "canonical": "Cause",
+   "repos": 6
+  },
+  {
+   "name": "Related",
+   "inward": "is related to",
+   "outward": "relates to",
+   "canonical": "Relate",
+   "repos": 6
+  },
+  {
+   "name": "Depends",
+   "inward": "is depended on by",
+   "outward": "depends on",
+   "canonical": "Depend",
+   "repos": 5
+  },
+  {
+   "name": "Blocker",
+   "inward": "is blocked by",
+   "outward": "blocks",
+   "canonical": "Block",
+   "repos": 4
+  },
+  {
+   "name": "Bonfire Testing",
+   "inward": "Testing discovered",
+   "outward": "Discovered while testing",
+   "canonical": "Bonfire Testing",
+   "repos": 4
+  }
+ ],
+ "systemFields": [
+  {
+   "name": "Resolution",
+   "jql": "resolution",
+   "type": "resolution",
+   "repos": 14
+  },
+  {
+   "name": "Labels",
+   "jql": "labels",
+   "type": "array",
+   "repos": 14
+  },
+  {
+   "name": "Linked Issues",
+   "jql": "issueLink",
+   "type": "array",
+   "repos": 14
+  },
+  {
+   "name": "Assignee",
+   "jql": "assignee",
+   "type": "user",
+   "repos": 14
+  },
+  {
+   "name": "Reporter",
+   "jql": "reporter",
+   "type": "user",
+   "repos": 14
+  },
+  {
+   "name": "Issue Type",
+   "jql": "issuetype",
+   "type": "issuetype",
+   "repos": 14
+  },
+  {
+   "name": "Project",
+   "jql": "project",
+   "type": "project",
+   "repos": 14
+  },
+  {
+   "name": "Resolved",
+   "jql": "resolutiondate",
+   "type": "datetime",
+   "repos": 14
+  },
+  {
+   "name": "Watchers",
+   "jql": "watchers",
+   "type": "watches",
+   "repos": 14
+  },
+  {
+   "name": "Updated",
+   "jql": "updated",
+   "type": "datetime",
+   "repos": 14
+  },
+  {
+   "name": "Description",
+   "jql": "description",
+   "type": "string",
+   "repos": 14
+  },
+  {
+   "name": "Summary",
+   "jql": "summary",
+   "type": "string",
+   "repos": 14
+  },
+  {
+   "name": "Comment",
+   "jql": "comment",
+   "type": "comments-page",
+   "repos": 14
+  },
+  {
+   "name": "Priority",
+   "jql": "priority",
+   "type": "priority",
+   "repos": 14
+  },
+  {
+   "name": "Status",
+   "jql": "status",
+   "type": "status",
+   "repos": 14
+  },
+  {
+   "name": "Creator",
+   "jql": "creator",
+   "type": "user",
+   "repos": 14
+  },
+  {
+   "name": "Created",
+   "jql": "created",
+   "type": "datetime",
+   "repos": 14
+  },
+  {
+   "name": "Attachment",
+   "jql": "attachments",
+   "type": "array",
+   "repos": 14
+  },
+  {
+   "name": "Votes",
+   "jql": "votes",
+   "type": "votes",
+   "repos": 13
+  },
+  {
+   "name": "Environment",
+   "jql": "environment",
+   "type": "string",
+   "repos": 13
+  },
+  {
+   "name": "Remaining Estimate",
+   "jql": "remainingEstimate",
+   "type": "number",
+   "repos": 12
+  },
+  {
+   "name": "Time Spent",
+   "jql": "timespent",
+   "type": "number",
+   "repos": 12
+  }
+ ]
+}

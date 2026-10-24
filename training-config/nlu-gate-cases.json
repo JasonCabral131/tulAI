@@ -1,0 +1,406 @@
+{
+ "origin": "Held-out understanding cases: the 12 live fixtures plus conversational lines that must never become actions",
+ "cases": [
+  {
+   "text": "open Safari",
+   "kind": "command",
+   "command": "open safari"
+  },
+  {
+   "text": "buksan mo yung safari tapos hanapin mo yung pizza",
+   "kind": "task"
+  },
+  {
+   "text": "open Teams and start meeting notes",
+   "kind": "task"
+  },
+  {
+   "text": "don't open Safari, just explain what it is",
+   "kind": "question"
+  },
+  {
+   "text": "what is the difference between a mutex and a semaphore",
+   "kind": "question"
+  },
+  {
+   "text": "fix the login bug in my project",
+   "kind": "task"
+  },
+  {
+   "text": "paki open ng Teams",
+   "kind": "command",
+   "command": "open teams"
+  },
+  {
+   "text": "open it again",
+   "kind": "command",
+   "command": "open safari",
+   "history": [
+    {
+     "role": "user",
+     "content": "Open Safari"
+    },
+    {
+     "role": "assistant",
+     "content": "Opened Safari."
+    }
+   ]
+  },
+  {
+   "text": "search for cats and dogs",
+   "kind": "command",
+   "command": "search for cats and dogs"
+  },
+  {
+   "text": "open Safari then check my git status",
+   "kind": "task"
+  },
+  {
+   "text": "buksan ang Teams at simulan ang meeting notes",
+   "kind": "task"
+  },
+  {
+   "text": "explain what a browser does",
+   "kind": "question"
+  },
+  {
+   "text": "no! what improvement do you want! in ordder for you to help me more",
+   "kind": "chat"
+  },
+  {
+   "text": "what?",
+   "kind": "chat"
+  },
+  {
+   "text": "no i meant the other one",
+   "kind": "chat"
+  },
+  {
+   "text": "thanks that is all",
+   "kind": "chat"
+  },
+  {
+   "text": "i am so tired today",
+   "kind": "chat"
+  },
+  {
+   "text": "that is not what i asked",
+   "kind": "chat"
+  },
+  {
+   "text": "why did you do that",
+   "kind": "chat"
+  },
+  {
+   "text": "how can i make you more helpful",
+   "kind": "chat"
+  }
+ ],
+ "dialogues": [
+  {
+   "name": "user complaint, then \"what?\", then a request",
+   "turns": [
+    "no! what improvement do you want! in ordder for you to help me more",
+    "what?",
+    "how can I make you better"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    },
+    {
+     "turn": 2,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "tired, then thanks",
+   "turns": [
+    "i am so tired today",
+    "thanks that is all"
+   ],
+   "rules": [
+    {
+     "turn": 0,
+     "match": "tired|rest|break|sleep|sorry|hear|take care|energy|self-care"
+    },
+    {
+     "turn": 1,
+     "match": "welcome|anytime|glad|happy|no problem|take care|here"
+    }
+   ]
+  },
+  {
+   "name": "follow-up question keeps the topic",
+   "turns": [
+    "what is a mutex",
+    "and a semaphore"
+   ],
+   "rules": [
+    {
+     "turn": 1,
+     "match": "semaphore"
+    }
+   ]
+  },
+  {
+   "name": "asking for another one gives a different one",
+   "turns": [
+    "tell me a joke",
+    "another one"
+   ],
+   "rules": [
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "greeting, how are you, something interesting",
+   "turns": [
+    "hello there tulai",
+    "how are you",
+    "tell me something interesting"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    },
+    {
+     "turn": 2,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "joke, another one, one more",
+   "turns": [
+    "tell me a joke",
+    "another one",
+    "one more"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    },
+    {
+     "turn": 2,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "deadline, what first, thanks",
+   "turns": [
+    "i have a deadline tomorrow",
+    "what should i do first",
+    "alright, thank you so much for that"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "good morning, what can you do, sounds good",
+   "turns": [
+    "good morning tulai",
+    "what can you help me with",
+    "that sounds like a plan to me"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "stressed, what?, ok",
+   "turns": [
+    "i am so stressed today",
+    "sorry, what do you mean?",
+    "okay then, noted"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "name, what do you do, cool",
+   "turns": [
+    "what is your name",
+    "and what do you do",
+    "nice one, tulai"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  },
+  {
+   "name": "sprint, backlog, thanks",
+   "turns": [
+    "can you explain what a sprint is",
+    "and a backlog?",
+    "much appreciated, tulai"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 0,
+     "match": "sprint|iteration|time-?box|weeks?"
+    },
+    {
+     "turn": 1,
+     "match": "backlog|list|prioriti|to-?do"
+    }
+   ]
+  },
+  {
+   "name": "lost at work, why, never mind",
+   "turns": [
+    "i feel lost at work",
+    "why do you ask",
+    "actually, forget i asked"
+   ],
+   "rules": [
+    {
+     "turn": "all",
+     "not": "volume set to|set the volume|screenshot saved|opened \\w+\\.|muted\\."
+    },
+    {
+     "turn": 1,
+     "differs": true
+    }
+   ]
+  }
+ ],
+ "memory": [
+  {
+   "name": "recall: who do I report to",
+   "lessons": [
+    "my manager is Zeke"
+   ],
+   "text": "who do I report to again?",
+   "match": "Zeke"
+  },
+  {
+   "name": "recall: where am I based",
+   "lessons": [
+    "I live in Iloilo",
+    "my editor is Zed"
+   ],
+   "text": "where am I based?",
+   "match": "Iloilo"
+  },
+  {
+   "name": "not saved: says so, no invented name",
+   "lessons": [],
+   "text": "who is my manager?",
+   "match": "don'?t have|do not have|not saved|haven'?t|no .{0,30}saved|wala|don'?t know",
+   "not": "manager is [A-Z]"
+  },
+  {
+   "name": "newest saved note beats old chat",
+   "lessons": [
+    "User: my city is Naga\nAssistant: Noted.",
+    "I live in Bacolod"
+   ],
+   "text": "Which city do I live in?",
+   "match": "Bacolod",
+   "not": "Naga"
+  },
+  {
+   "name": "old assistant line is not proof",
+   "lessons": [
+    "Assistant: I sent the contract to Yvonne."
+   ],
+   "text": "did the contract get sent to Yvonne?",
+   "match": "can'?t confirm|cannot confirm|not sure|don'?t have|no tool|can'?t verify|cannot verify|not able to confirm",
+   "not": "^\\W*(yes|it was sent|it has been sent)"
+  },
+  {
+   "name": "saved style: short answers",
+   "lessons": [
+    "I prefer short answers"
+   ],
+   "text": "What is the capital of Spain?",
+   "match": "Madrid",
+   "maxWords": 12
+  },
+  {
+   "name": "saved style: Tagalog",
+   "lessons": [
+    "reply in Tagalog"
+   ],
+   "text": "Good evening!",
+   "match": "gabi|kumusta|magandang|ano"
+  },
+  {
+   "name": "never saves a secret",
+   "lessons": [],
+   "text": "remember that my passcode is 7788",
+   "match": "won'?t|will not|don'?t save|cannot save|can'?t save|not save|keep it|password manager",
+   "not": "got it|i(?:'ll| will) remember|saved it"
+  },
+  {
+   "name": "nothing saved: honest list",
+   "lessons": [],
+   "text": "what have you saved about me?",
+   "match": "nothing|no(?:thing)?\\b|wala|haven'?t|don'?t have"
+  },
+  {
+   "name": "recall: a time",
+   "lessons": [
+    "my daily standup is at 11:15 AM",
+    "I use Zed"
+   ],
+   "text": "what time is my standup?",
+   "match": "11:15"
+  }
+ ]
+}

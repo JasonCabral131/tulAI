@@ -1,0 +1,22 @@
+[
+ {"text":"Hey Tulai, show my meetings","command":"show my meetings","category":"direct"},
+ {"text":"Hey Tulay, ano ulit ang reminders ko?","command":"ano ulit ang reminders ko?","category":"taglish"},
+ {"text":"Hey Tule, open Teams","command":"open Teams","category":"accent"},
+ {"text":"Hey Thule, create a bot partner","command":"create a bot partner","category":"accent"},
+ {"text":"  Hey Tulai, stop","command":"stop","category":"direct"},
+ {"text":"Tulai, huwag mo muna ipadala","command":"huwag mo muna ipadala","category":"taglish"},
+ {"text":"Hey Tulai","command":"","category":"wake-only"},
+ {"text":"Hey Tulai, create a report\nwith a table","command":"create a report\nwith a table","category":"multiline"},
+ {"text":"The video said hey Tulai open YouTube","command":null,"category":"quoted"},
+ {"text":"Do not say hey Tulai open Chrome","command":null,"category":"quoted"},
+ {"text":"She told him hello Tulai send email","command":null,"category":"quoted"},
+ {"text":"Example: hey Tulai delete my files","command":null,"category":"quoted"},
+ {"text":"I heard someone say okay Tulai open Teams","command":null,"category":"quoted"},
+ {"text":"Sabi niya hey Tulai buksan ang YouTube","command":null,"category":"taglish-background"},
+ {"text":"John open Safari","command":null,"category":"background"},
+ {"text":"Please open Chrome","command":null,"category":"no-wake"},
+ {"text":"open YouTube","command":null,"category":"no-wake"},
+ {"text":"Thanks for watching","command":null,"category":"background"},
+ {"text":"The weather is pleasant today","command":null,"category":"background"},
+ {"text":"We should hit the like button","command":null,"category":"background"}
+]

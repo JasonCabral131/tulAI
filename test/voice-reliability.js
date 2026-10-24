@@ -1,0 +1,18 @@
+// No microphone, speech process, network, or app actions: exercise lifecycle races with fakes.
+const assert=require('assert'),fs=require('fs'),vm=require('vm'),{EventEmitter}=require('events'),{createRequire}=require('module');
+const filename=require('path').resolve(__dirname,'../voice.js'),realRequire=createRequire(filename),processes=[];
+const fakeProcess=()=>{const p=new EventEmitter();p.stdin={write(){}};p.stdout=new EventEmitter();p.stderr=new EventEmitter();p.kill=()=>{};processes.push(p);return p};
+const sandbox={module:{exports:{}},exports:{},require:n=>n==='child_process'?{spawn:fakeProcess,execFile:(...args)=>args.at(-1)(null,'')}:realRequire(n),__dirname:require('path').dirname(filename),process:{env:{},on(){}},console,Date,setTimeout,clearTimeout,URL,FormData,Blob,AbortSignal};
+vm.runInNewContext(fs.readFileSync(filename,'utf8')+`\nmodule.exports.test={tidy,flush(){if(held)clearTimeout(held.t);flushHeld()},setTranscript(t){transcribe=async()=>t},arm(){armedUntil=Date.now()+15000},state(){return{mutedUntil,sayProc,armedUntil}},reset(){lastSpoken={words:new Set(),at:0};}};`,sandbox,{filename});
+const voice=sandbox.module.exports;
+(async()=>{
+ assert(!fs.readFileSync(filename,'utf8').includes("fd.append('prompt'"),'ASR must not inject a transcription hint');assert.equal(voice.test.tidy(' Thank you.\n'),'');assert.equal(voice.afterWake('The weather is pleasant today.'),null);assert.equal(voice.afterWake('Hey Tule, what are my reminders?'),'what are my reminders?');assert.equal(voice.afterWake('Hey Thule, create a bot partner to discuss the weekly report.'),'create a bot partner to discuss the weekly report.');let events=[];voice.test.setTranscript('Hey Tulai');await voice._utterance('fake','wake',e=>events.push(e));assert(events.some(e=>e.type==='wake'));
+ events=[];voice.test.setTranscript('Hey Tulai');await voice._utteranceKeep('fake','wake',e=>events.push(e));assert(events.some(e=>e.type==='wake'),'repeated wake must be a wake, not a command');assert(!events.some(e=>e.type==='final'),'bare wake must not run a command');
+ events=[];voice.test.setTranscript('Hey Tulai open Teams');await voice._utteranceKeep('fake','wake',e=>events.push(e));voice.test.flush();assert(events.some(e=>e.type==='final'&&e.text==='open Teams'));
+ events=[];voice.test.setTranscript('open Teams');voice.test.arm();await voice._utteranceKeep('fake','wake',e=>events.push(e));voice.test.flush();assert(events.some(e=>e.type==='final'&&e.armed));
+ events=[];voice.test.setTranscript('yes, use my work profile');voice.test.arm();await voice._utteranceKeep('fake','wake',e=>events.push(e));voice.test.flush();assert(events.some(e=>e.type==='final'&&e.text==='yes, use my work profile'),'Preserve confirmation words in follow-up speech');
+ voice.speak('First reply');const first=processes.at(-1);voice.speak('Second reply');const second=processes.at(-1);first.emit('exit',0);assert.strictEqual(voice.test.state().sayProc,second,'stale exit must not clear new speech');assert(voice.test.state().mutedUntil>Date.now());
+ voice.stopSpeaking();assert.strictEqual(voice.test.state().mutedUntil,0,'click-to-talk must unmute immediately');second.emit('exit',0);assert.strictEqual(voice.test.state().mutedUntil,0,'stale exit must not re-mute microphone');
+ voice.speak('Failed playback');processes.at(-1).emit('error',new Error('test'));assert.strictEqual(voice.test.state().sayProc,null,'playback error clears speech state');
+ console.log('Voice reliability: repeated wake, follow-up, speech replacement, interrupt and playback failure passed.');
+})().catch(e=>{console.error(e);process.exitCode=1});

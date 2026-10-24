@@ -1,0 +1,427 @@
+{
+ "about": "Free, open datasets Tulai can use to learn general helpfulness, careful arithmetic and everyday conversation, on this Mac. Each entry is pinned to an exact commit and file checksum (a changed file is refused), has its license checked at the source, and is capped to a few hundred rows so it can never drown the skills and memory training. Nothing is downloaded until you turn it on (or leave the default) and nothing is sent anywhere.",
+ "datasets": [
+  {
+   "id": "dolly-15k",
+   "name": "Databricks Dolly 15k",
+   "skill": "Helpful, short answers to everyday questions: brainstorming, classification, closed and open Q&A, extraction, summaries. Written by people.",
+   "license": "CC-BY-SA-3.0",
+   "licenseNote": "Free to use with credit (Databricks). Share-alike: if you publish a derivative of the data itself, keep the same license. Check with your legal team before shipping a model trained on it outside your company.",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "source": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+   "commit": "bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a",
+   "humanWritten": true,
+   "adapter": "dolly",
+   "maxRows": 150,
+   "defaultOn": true,
+   "files": [
+    {
+     "name": "databricks-dolly-15k.jsonl",
+     "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k/resolve/bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a/databricks-dolly-15k.jsonl",
+     "bytes": 13085339,
+     "sha256": "2df9083338b4abd6bceb5635764dab5d833b393b55759dffb0959b6fcbf794ec"
+    }
+   ]
+  },
+  {
+   "id": "gsm8k",
+   "name": "GSM8K grade-school math",
+   "skill": "Careful step-by-step arithmetic and percentages, ending with a clear answer (what the bot needs for counts, percentages and progress).",
+   "license": "MIT",
+   "licenseNote": "Permissive (OpenAI). Keep the copyright notice.",
+   "licenseUrl": "https://github.com/openai/grade-school-math/blob/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE",
+   "source": "https://github.com/openai/grade-school-math",
+   "commit": "3101c7d5072418e28b9008a6636bde82a006892c",
+   "humanWritten": true,
+   "adapter": "gsm8k",
+   "maxRows": 100,
+   "defaultOn": true,
+   "files": [
+    {
+     "name": "train.jsonl",
+     "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/train.jsonl",
+     "bytes": 4166206,
+     "sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465"
+    }
+   ]
+  },
+  {
+   "id": "oasst1",
+   "name": "OpenAssistant oasst1 (English)",
+   "skill": "Natural, friendly assistant conversation: the best-ranked human answer to everyday English requests.",
+   "license": "Apache-2.0",
+   "licenseNote": "Permissive. Written and ranked by volunteers; rows with spam, hate, sexual, PII or toxicity flags are dropped.",
+   "licenseUrl": "https://huggingface.co/datasets/OpenAssistant/oasst1/blob/fdf72ae0827c1cda404aff25b6603abec9e3399b/LICENSE",
+   "source": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+   "commit": "fdf72ae0827c1cda404aff25b6603abec9e3399b",
+   "humanWritten": true,
+   "adapter": "oasst1",
+   "maxRows": 150,
+   "defaultOn": true,
+   "files": [
+    {
+     "name": "2023-04-12_oasst_ready.messages.jsonl.gz",
+     "url": "https://huggingface.co/datasets/OpenAssistant/oasst1/resolve/fdf72ae0827c1cda404aff25b6603abec9e3399b/2023-04-12_oasst_ready.messages.jsonl.gz",
+     "bytes": 34196309,
+     "sha256": "286a6e9a5a413b3272ae9c0b5a20d327983dea1c24342ae28cb244a6da65185c"
+    }
+   ]
+  },
+  {
+   "id": "sprint-velocity",
+   "name": "Agile Scrum Sprint Velocity data (Aurora, Spring XD, Usergrid, Mesos)",
+   "skill": "Real sprint numbers (planned, completed, punted, added mid-sprint, developers, length) used by Jira Mastery to practise sprint-health maths on realistic values. Not used by general training.",
+   "license": "No license declared",
+   "licenseNote": "The author did not publish a license, so by default all rights are reserved. It is only downloaded on request, used on this Mac to shape numbers, and never copied into the app or shared. Ask the author (Randula Koralage) before publishing a model trained on it. The sprints come from public Apache and Spring Jira boards.",
+   "licenseUrl": "https://github.com/RandulaKoralage/AgileScrumSprintVelocityDataSet",
+   "source": "https://github.com/RandulaKoralage/AgileScrumSprintVelocityDataSet",
+   "commit": "544b07e3f36e9c42040609effae5b68a13fdefc9",
+   "humanWritten": true,
+   "restricted": true,
+   "adapter": "pack-data",
+   "maxRows": 0,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "Aurora_Sprints_41.csv",
+     "url": "https://raw.githubusercontent.com/RandulaKoralage/AgileScrumSprintVelocityDataSet/544b07e3f36e9c42040609effae5b68a13fdefc9/Agile%20Scrum%20Dataset/Finalized%20Datasets%20for%20Aurora%20Project/Aurora%20Sprints%2041.csv",
+     "bytes": 4644,
+     "sha256": "b620a3f173545fbfb4ebb3db28b6d90d76bd6c7656e9932d016e3262bd65f422"
+    },
+    {
+     "name": "Spring_XD_Sprints_67.csv",
+     "url": "https://raw.githubusercontent.com/RandulaKoralage/AgileScrumSprintVelocityDataSet/544b07e3f36e9c42040609effae5b68a13fdefc9/Agile%20Scrum%20Dataset/Finalized%20Datasets%20for%20Spring%20XD%20Project%20by%20Randula/Spring%20XD%20Sprints%2067.csv",
+     "bytes": 6583,
+     "sha256": "bc0c4a3caaee912f51eda5e1243981f67af99a2d61e5165e894063ff772c0b04"
+    },
+    {
+     "name": "Usergrid_Sprints_36.csv",
+     "url": "https://raw.githubusercontent.com/RandulaKoralage/AgileScrumSprintVelocityDataSet/544b07e3f36e9c42040609effae5b68a13fdefc9/Agile%20Scrum%20Dataset/Finalized%20Datasets%20for%20UserGrid/Usergrid%20Sprints%2036.csv",
+     "bytes": 3826,
+     "sha256": "4a3dd32e603a41e13efc806e6a2dc4c73bb953a75a563361a4521bae61c61f0e"
+    },
+    {
+     "name": "MESO_Sprint_96.csv",
+     "url": "https://raw.githubusercontent.com/RandulaKoralage/AgileScrumSprintVelocityDataSet/544b07e3f36e9c42040609effae5b68a13fdefc9/Agile%20Scrum%20Dataset/Finalized%20Datasets%20for%20Meso%20Project/MESO%20Sprint%2096.csv",
+     "bytes": 10128,
+     "sha256": "40c5e348d48abe3b7abc7bdca0e4c66a3789540993184ae90d42a8bdb00d20d7"
+    }
+   ]
+  },
+  {
+   "id": "text2chart31",
+   "name": "Text2Chart31 (chart-type examples)",
+   "skill": "Choosing the right plot type from a chart request and a data excerpt (used by Charts & Executive Reporting).",
+   "license": "MIT",
+   "licenseNote": "MIT license of the repository (Pesaran et al., EMNLP 2024). Keep the copyright notice. Optional download, 45 MB.",
+   "licenseUrl": "https://github.com/fatemehpesaran310/Text2Chart31/blob/453609ec40cb1b357d4e5e48099f2a2a84e8dbe1/LICENSE",
+   "source": "https://github.com/fatemehpesaran310/Text2Chart31",
+   "commit": "453609ec40cb1b357d4e5e48099f2a2a84e8dbe1",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 0,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "Text2Chart-31-train.json",
+     "url": "https://raw.githubusercontent.com/fatemehpesaran310/Text2Chart31/453609ec40cb1b357d4e5e48099f2a2a84e8dbe1/prepare-data/Text2Chart-31-train.json",
+     "bytes": 45442234,
+     "sha256": "9965c55ed9ee6c6dcb7dafb99fed24987afe418df75ec4496ecb7dc686e725be"
+    }
+   ]
+  },
+  {
+   "id": "aacr-bench",
+   "name": "Alibaba AACR-Bench (real code review comments)",
+   "skill": "Real review comments with categories (Code Defect, Maintainability, Performance, Security) for classifying and formatting findings (used by Senior Code Reviewer).",
+   "license": "Apache-2.0",
+   "licenseNote": "Apache-2.0 (Alibaba). Optional download, 1.1 MB. Only human-written English comments are used.",
+   "licenseUrl": "https://github.com/alibaba/aacr-bench/blob/68a569759289a83654a59d06db2a72910edf0a4a/LICENSE",
+   "source": "https://github.com/alibaba/aacr-bench",
+   "commit": "68a569759289a83654a59d06db2a72910edf0a4a",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 0,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "positive_samples.json",
+     "url": "https://raw.githubusercontent.com/alibaba/aacr-bench/68a569759289a83654a59d06db2a72910edf0a4a/dataset/positive_samples.json",
+     "bytes": 1101548,
+     "sha256": "7a4a0e7046ffd1b8f41f951480bbb618d23d38d9f67364f38aabcda121a50be3"
+    }
+   ]
+  },
+  {
+   "id": "test-reviews",
+   "name": "How Developers Review Tests in GitHub (330 reviews)",
+   "skill": "What reviewers ask for on test changes (add a test case, improve, refactor, fix) for the QA pack.",
+   "license": "CC-BY-4.0",
+   "licenseNote": "CC BY 4.0: free to use with credit (Zenodo record 6792932). Optional download, 227 KB.",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "source": "https://zenodo.org/records/6792932",
+   "commit": "6792932",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 0,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "Test Reviews v1.csv",
+     "url": "https://zenodo.org/api/records/6792932/files/Test%20Reviews%20v1.csv/content",
+     "bytes": 227178,
+     "sha256": "31be777fc3ea3b715bb1772039ef7e03f4f3b172045e74b1906cde0d3f4ff8ff"
+    }
+   ]
+  },
+  {
+   "id": "opencodeinstruct",
+   "name": "NVIDIA OpenCodeInstruct (shard 1 of 50)",
+   "skill": "Code generation and problem solving, with unit tests that were actually executed; only answers that passed their tests are used.",
+   "license": "CC-BY-4.0",
+   "licenseNote": "Free to use and train on with credit (NVIDIA). Answers were generated by a model and checked by executed unit tests. Only 1 of 50 shards (about 100k records) is used.",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "source": "https://huggingface.co/datasets/nvidia/OpenCodeInstruct",
+   "commit": "8f3ba5bafe4d6e8db46082cf7ae6741bc370604d",
+   "humanWritten": false,
+   "adapter": "pack-data",
+   "maxRows": 800,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "train-00000-of-00050.parquet",
+     "url": "https://huggingface.co/datasets/nvidia/OpenCodeInstruct/resolve/8f3ba5bafe4d6e8db46082cf7ae6741bc370604d/data/train-00000-of-00050.parquet",
+     "bytes": 133476478,
+     "sha256": "342757e0c6b706c8f68cf0a867ead5c417d0273726453dbcfc934f5c3c6ca891"
+    }
+   ]
+  },
+  {
+   "id": "magicoder-oss",
+   "name": "Magicoder OSS-Instruct 75K",
+   "skill": "Coding tasks written from real open-source code snippets: implement a function, class or script from a requirement.",
+   "license": "MIT",
+   "licenseNote": "MIT. The answers were generated by OpenAI gpt-3.5-turbo; the dataset authors ask users to respect OpenAI usage policies. Check with your legal team before shipping a model trained on it outside your company.",
+   "licenseUrl": "https://opensource.org/licenses/MIT",
+   "source": "https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K",
+   "commit": "5f839b1f368a76b161028bb9edff055db34022b2",
+   "humanWritten": false,
+   "adapter": "pack-data",
+   "maxRows": 150,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "data-oss_instruct-decontaminated.jsonl",
+     "url": "https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K/resolve/5f839b1f368a76b161028bb9edff055db34022b2/data-oss_instruct-decontaminated.jsonl",
+     "bytes": 203201169,
+     "sha256": "f988f14d3516a9f958eeea310f63903727c6d3463bc9cb435288b6ca4bb09cf9"
+    }
+   ]
+  },
+  {
+   "id": "magicoder-evol",
+   "name": "Magicoder Evol-Instruct 110K",
+   "skill": "Harder, multi-step coding instructions: modify code, combine requirements, explain and fix.",
+   "license": "Apache-2.0",
+   "licenseNote": "Apache-2.0. Built from Evol-CodeAlpaca, whose answers were generated by an OpenAI model; respect OpenAI usage policies. Check with your legal team before shipping a model trained on it outside your company.",
+   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+   "source": "https://huggingface.co/datasets/ise-uiuc/Magicoder-Evol-Instruct-110K",
+   "commit": "b0079beaa0361d82412520b873715bee59cc7dd4",
+   "humanWritten": false,
+   "adapter": "pack-data",
+   "maxRows": 200,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "data-evol_instruct-decontaminated.jsonl",
+     "url": "https://huggingface.co/datasets/ise-uiuc/Magicoder-Evol-Instruct-110K/resolve/b0079beaa0361d82412520b873715bee59cc7dd4/data-evol_instruct-decontaminated.jsonl",
+     "bytes": 255186224,
+     "sha256": "99d8bab4c443050e5bb4bc339f709de8bcccf81cb83e15ef8d53369c5d8dc495"
+    }
+   ]
+  },
+  {
+   "id": "codealpaca",
+   "name": "CodeAlpaca 20K",
+   "skill": "Short code generation, modification and explanation tasks (supplementary).",
+   "license": "CC-BY-4.0",
+   "licenseNote": "CC-BY-4.0 on the dataset; the answers were generated by OpenAI text-davinci-003 and some are wrong, so only answers that pass a syntax check are used. Respect OpenAI usage policies.",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "source": "https://huggingface.co/datasets/sahil2801/CodeAlpaca-20k",
+   "commit": "152bb5e9a29651266b018106053980070a0521a1",
+   "humanWritten": false,
+   "adapter": "pack-data",
+   "maxRows": 100,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "code_alpaca_20k.json",
+     "url": "https://huggingface.co/datasets/sahil2801/CodeAlpaca-20k/resolve/152bb5e9a29651266b018106053980070a0521a1/code_alpaca_20k.json",
+     "bytes": 8057896,
+     "sha256": "58d136bb7ea8e4b7c5b6ef08831da905d0abfafeb56f8fa519083089dd6a210e"
+    }
+   ]
+  },
+  {
+   "id": "swe-bench",
+   "name": "SWE-bench (train split for training; test split held out)",
+   "skill": "Repository-level bug fixing: read a real GitHub issue, write the patch. The train split comes from different repositories than the test split, so evaluation does not leak into training.",
+   "license": "MIT",
+   "licenseNote": "The SWE-bench code is MIT. The issues and patches come from public GitHub repositories under their own open-source licenses (mostly BSD, MIT, Apache). The test split is never trained on.",
+   "licenseUrl": "https://github.com/SWE-bench/SWE-bench/blob/main/LICENSE",
+   "source": "https://huggingface.co/datasets/princeton-nlp/SWE-bench",
+   "commit": "e48e2bd1e9fecd5bbd641e9414ac59da9f2e69f6",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 40,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "train-00000-of-00001.parquet",
+     "url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench/resolve/e48e2bd1e9fecd5bbd641e9414ac59da9f2e69f6/data/train-00000-of-00001.parquet",
+     "bytes": 106606519,
+     "sha256": "0ba403a7060af657e1f0476937a703726c07da15b759836694b16e553705a10f"
+    },
+    {
+     "name": "test-00000-of-00001.parquet",
+     "url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench/resolve/e48e2bd1e9fecd5bbd641e9414ac59da9f2e69f6/data/test-00000-of-00001.parquet",
+     "bytes": 12097227,
+     "sha256": "db4f70ef735b3162c74801ddcdf8d7bae8d704193788c6d844f898c20b571cbb"
+    }
+   ]
+  },
+  {
+   "id": "spring-boot-4-docs",
+   "name": "Spring Boot 4.1.1 documentation examples",
+   "skill": "How the official Spring Boot 4.1.1 docs write web, data, testing, configuration and security code.",
+   "license": "Apache-2.0",
+   "licenseNote": "Official Spring Boot source at tag v4.1.1 (Apache-2.0). Only the documentation example classes are used.",
+   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+   "source": "https://github.com/spring-projects/spring-boot/tree/v4.1.1",
+   "commit": "c921f13245042fbe718c35474f1621e641a37ff1",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 350,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "spring-boot-v4.1.1.tar.gz",
+     "url": "https://codeload.github.com/spring-projects/spring-boot/tar.gz/c921f13245042fbe718c35474f1621e641a37ff1",
+     "bytes": 6446255,
+     "sha256": "1665b66d3da92fe69d2a93051b01d604569720e8ebce6f4a73ea30ede4d116f0"
+    }
+   ]
+  },
+  {
+   "id": "spring-guides",
+   "name": "Official Spring Guides (Spring Boot 4 only)",
+   "skill": "Complete small Spring Boot apps from the official guides: REST, JPA, security, testing, validation, forms, CORS, JDBC, scheduling, uploads, REST clients.",
+   "license": "Apache-2.0",
+   "licenseNote": "Spring Guides code is Apache-2.0 (each guide repository). Only guides whose project is on Spring Boot 4 are used.",
+   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+   "source": "https://github.com/spring-guides",
+   "commit": "per-file",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 120,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "gs-accessing-data-jpa-ef48947528dba9021776282e12299e5298e66bca.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-accessing-data-jpa/tar.gz/ef48947528dba9021776282e12299e5298e66bca",
+     "bytes": 208414,
+     "sha256": "e455e9437d2cd5ce17273955002f2e9ff31150656a8441616ae3f3725a1175b1"
+    },
+    {
+     "name": "gs-accessing-data-rest-561c2d79bf1d8ac49db38fa85ee5acd2fc1b6a5b.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-accessing-data-rest/tar.gz/561c2d79bf1d8ac49db38fa85ee5acd2fc1b6a5b",
+     "bytes": 212887,
+     "sha256": "b9bf6551c2cac33cc77fa834a0cb18401206c707eeba899ea475e01b1e6d8bef"
+    },
+    {
+     "name": "gs-consuming-rest-650393739030479bdc3b045248ceea6bd3f7a51a.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-consuming-rest/tar.gz/650393739030479bdc3b045248ceea6bd3f7a51a",
+     "bytes": 201968,
+     "sha256": "dc5d7791d91e1972d34fbb7ab2492b4d43a8fe6ca6cef34797c47d930fcf55d3"
+    },
+    {
+     "name": "gs-handling-form-submission-c34ded6971c68735da719973e4051f4600a7846a.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-handling-form-submission/tar.gz/c34ded6971c68735da719973e4051f4600a7846a",
+     "bytes": 708173,
+     "sha256": "ded8c06b659dea87249354a5be64288610efe06262c315b07db186d67b48a067"
+    },
+    {
+     "name": "gs-relational-data-access-a4c1d4f0d8b2957a3b73953081698e8defe9fc78.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-relational-data-access/tar.gz/a4c1d4f0d8b2957a3b73953081698e8defe9fc78",
+     "bytes": 201375,
+     "sha256": "a8da7f7fe2645e6cbb6e71d7f53d1da2e4cbaaff1e47a31fd2902eaf5734ea12"
+    },
+    {
+     "name": "gs-rest-service-3f4cef01152596c19bc4d37939409358812b1421.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-rest-service/tar.gz/3f4cef01152596c19bc4d37939409358812b1421",
+     "bytes": 292138,
+     "sha256": "d89840263f555dbd1a44c02dc9dbd9e234bb4d446e3213f8c5e4bd273536320a"
+    },
+    {
+     "name": "gs-rest-service-cors-66edcac5701f2f985096d3d40814026b3cf9b7cc.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-rest-service-cors/tar.gz/66edcac5701f2f985096d3d40814026b3cf9b7cc",
+     "bytes": 377900,
+     "sha256": "fc44f959e56b68393403c987032d1bd7488b0a670da04f0338211ca9b9e2690d"
+    },
+    {
+     "name": "gs-scheduling-tasks-f60278baec6aff7d008fc364fc3cfdbadb9fa49b.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-scheduling-tasks/tar.gz/f60278baec6aff7d008fc364fc3cfdbadb9fa49b",
+     "bytes": 54848,
+     "sha256": "8edc06b8eb5be94cb2e5221e1d27fa5aaaa4c2845c8b19f388356b62aad2617b"
+    },
+    {
+     "name": "gs-securing-web-38b43f1d209b880e234b1082f49973a9e97639b4.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-securing-web/tar.gz/38b43f1d209b880e234b1082f49973a9e97639b4",
+     "bytes": 918300,
+     "sha256": "84fe3bf22ef0f0540d31f2fb7a5468c46783ba6d2ef9ae342248a2dbe6604707"
+    },
+    {
+     "name": "gs-testing-web-0fa8dd2e860953a625d60650060e1bf6f4e2242b.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-testing-web/tar.gz/0fa8dd2e860953a625d60650060e1bf6f4e2242b",
+     "bytes": 203550,
+     "sha256": "3148e59ef7b7f552ea60497e654a847fa90c712031212ad74f1194abc0412011"
+    },
+    {
+     "name": "gs-uploading-files-d3f432cac961edfd39a9be157f2cdc258ed1ac65.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-uploading-files/tar.gz/d3f432cac961edfd39a9be157f2cdc258ed1ac65",
+     "bytes": 212575,
+     "sha256": "95e4387e1c143dd8f5b2289e622684dd36b2bfc53df47c9165b267d97c19e053"
+    },
+    {
+     "name": "gs-validating-form-input-1bde007f44727f3c21a9882f1c3435ea51de95ad.tar.gz",
+     "url": "https://codeload.github.com/spring-guides/gs-validating-form-input/tar.gz/1bde007f44727f3c21a9882f1c3435ea51de95ad",
+     "bytes": 905555,
+     "sha256": "8b6759aca26da36c803654bc915d71b37c52796de0b75d8b0f511ec918cf2173"
+    }
+   ]
+  },
+  {
+   "id": "fuleee-springboot",
+   "name": "Spring Boot code completion (Fuleee)",
+   "skill": "Completing Spring Boot Java code (Spring Boot samples only: @RestController, @Service, @Entity...).",
+   "license": "MIT tag; README: academic and non-commercial use only",
+   "licenseNote": "The dataset page is tagged MIT, but its README says it is for academic research and non-commercial use only, and its code comes from 90 GitHub projects under their own licenses. Used by the owner's explicit choice (2026-10-14); check with your legal team before shipping a model trained on it. It is downloaded on this Mac only when you switch it on and is never copied into the app or a release.",
+   "licenseUrl": "https://huggingface.co/datasets/Fuleee/springboot-code-completion-dataset",
+   "source": "https://huggingface.co/datasets/Fuleee/springboot-code-completion-dataset",
+   "commit": "f95096129543178c64acf5b6eb029d6792dd2df1",
+   "humanWritten": true,
+   "adapter": "pack-data",
+   "maxRows": 400,
+   "defaultOn": false,
+   "files": [
+    {
+     "name": "raw_data.zip",
+     "url": "https://huggingface.co/datasets/Fuleee/springboot-code-completion-dataset/resolve/f95096129543178c64acf5b6eb029d6792dd2df1/raw_data.zip",
+     "bytes": 35113079,
+     "sha256": "321b35f66d34ed44ad0bc967f9a43cdb3808cb1c449c971886cd5b2d54048475"
+    }
+   ],
+   "restricted": true
+  }
+ ]
+}

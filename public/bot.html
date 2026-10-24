@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tulai bot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/app-palette.js"></script>
+<script src="/rich.js"></script>
+<script src="/ui-icons.js"></script>
+<style>
+:root{--bg:#faf9f5;--card:#fff;--ink:#1f1e1c;--muted:#6f6b62;--line:#e6e2d7;--accent:#c15f3c;--user:#eeeade;--ok:#3d8b5f;--err:#c0392b;--shadow:0 10px 40px rgba(0,0,0,.25)}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1c1a;--card:#272622;--ink:#ece9e1;--muted:#98948b;--line:#383632;--user:#2f2d29;--shadow:0 10px 40px rgba(0,0,0,.6)}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font:14px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;user-select:none}
+#root{position:fixed;inset:0;display:flex;padding:6px}
+#root.collapsed #panel{display:none}
+/* orb */
+#orb{position:absolute;width:120px;height:120px;border-radius:50%;cursor:grab;display:grid;place-items:center;color:#fff;background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--accent) 80%,#fff),var(--accent));box-shadow:0 6px 22px color-mix(in srgb,var(--accent) 50%,transparent),inset 0 1px 1px rgba(255,255,255,.35);transition:transform .15s}
+#orb:active{cursor:grabbing}#orb:hover{transform:scale(1.04)}
+#orb canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+#orb.has3d{background:none;box-shadow:none}#orb.has3d canvas{display:block}#orb.has3d>svg,#orb.has3d .ring{display:none}
+#orb svg{width:34px;height:34px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#orb .ring{position:absolute;inset:-5px;border-radius:50%;border:3px solid transparent;pointer-events:none}
+#orb.thinking .ring{border-top-color:#fff;border-right-color:rgba(255,255,255,.35);animation:spin 1s linear infinite;inset:-4px}
+#orb.listening .ring{border-color:rgba(255,255,255,.9);animation:pulse 1s ease-in-out infinite;transform:scale(var(--lv,1))}
+#orb.speaking .ring{border-color:rgba(255,255,255,.7);animation:ripple 1.1s ease-out infinite}
+#orb.idle .ring{border-color:color-mix(in srgb,var(--accent) 0%,transparent)}
+#orb .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:10px;background:#fff;color:var(--accent);font-size:12px;font-weight:700;display:none;place-items:center;padding:0 5px;border:2px solid var(--accent)}
+#orb .badge.on{display:grid}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}@keyframes ripple{from{transform:scale(.95);opacity:.9}to{transform:scale(1.35);opacity:0}}
+#root.al-r #orb{right:6px}#root:not(.al-r) #orb{left:6px}#root.al-b #orb{bottom:6px}#root:not(.al-b) #orb{top:6px}
+/* panel */
+#panel{position:absolute;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;width:calc(100% - 12px);height:calc(100% - 12px - 128px);left:6px}
+#root:not(.al-b) #panel{top:134px}#root.al-b #panel{top:6px}
+#head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:grab;-webkit-app-region:no-drag}
+#head b{font-size:14px}#stat{color:var(--muted);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;display:grid;place-items:center}.ib:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+#log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:9px;user-select:text}
+.m{max-width:92%;padding:8px 12px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
+.m.u{align-self:flex-end;background:var(--user);border-bottom-right-radius:4px}.m.b{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.m.sys{align-self:center;color:var(--muted);font-size:12px;background:none;padding:2px}
+.chip{align-self:flex-start;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.run{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}.chip.err{color:var(--err)}
+.appr{align-self:stretch;border:1px solid var(--accent);border-radius:12px;padding:9px 12px;background:color-mix(in srgb,var(--accent) 7%,var(--card))}
+.appr div{font-size:12.5px;margin-bottom:6px}.appr button{margin-right:6px;padding:4px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit;font-size:12.5px}.appr button.go{background:var(--accent);color:#fff;border-color:var(--accent)}
+#chips[hidden]{display:none!important}
+#toggleSuggestions{align-self:flex-end;margin:0 12px 4px;padding:3px 6px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}#toggleSuggestions:hover{color:var(--ink)}
+#chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}
+#chips button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}#chips button:hover{border-color:var(--accent)}
+#bar{display:flex;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+#q{resize:none;min-width:0;max-height:120px;line-height:1.4;overflow-y:auto;flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:18px;padding:8px 14px;font:inherit;outline:0;user-select:text}#q:focus{border-color:color-mix(in srgb,var(--accent) 60%,var(--line))}#q.live{font-style:italic;color:var(--muted)}
+.rb{width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;font-size:15px;color:#fff;background:var(--accent)}.rb.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}.rb.rec{background:var(--err);animation:pulse 1s infinite}
+.hint{font-size:11px;color:var(--muted);text-align:center;padding:0 12px 8px}
+/* ---- polish: glass panel, live status, nicer bubbles ---- */
+:root{--glass:color-mix(in srgb,var(--bg) 95%,transparent);--grad:linear-gradient(135deg,var(--accent),var(--accent))}
+
+#panel{background:var(--glass);-webkit-backdrop-filter:blur(28px) saturate(1.6);backdrop-filter:blur(28px) saturate(1.6);border:1px solid color-mix(in srgb,var(--ink) 10%,transparent);border-radius:22px;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.12)}
+#head{padding:12px 14px;gap:10px;border-bottom:1px solid color-mix(in srgb,var(--ink) 7%,transparent)}
+#head .av{width:30px;height:30px;border-radius:10px;background:var(--grad);display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
+#head .who{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}#head .who b{font-size:14px;letter-spacing:.2px}
+#stat{display:flex;align-items:center;gap:6px;flex:none;font-size:11.5px}
+#stat::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent);flex:none}
+#root[data-s=listening] #stat::before{background:#e5484d;animation:dotp 1s infinite}
+#root[data-s=thinking] #stat::before{background:#e0a030;animation:dotp 1s infinite}
+#root[data-s=speaking] #stat::before{background:#3b82f6;animation:dotp 1.1s infinite}
+#root[data-s=attention] #stat::before{background:var(--accent);animation:dotp .8s infinite}
+@keyframes dotp{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 0%,rgba(229,72,77,.55))}70%{box-shadow:0 0 0 7px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+#log{padding:14px;gap:10px;scroll-behavior:smooth}
+#log::-webkit-scrollbar{width:6px}#log::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 18%,transparent);border-radius:3px}
+.m{font-size:14px;line-height:1.5;padding:9px 13px;border-radius:16px;animation:pin .22s ease-out}
+.m.u{background:var(--user);color:var(--ink);border:0;border-bottom-right-radius:5px;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 28%,transparent)}
+.m.b{background:color-mix(in srgb,var(--card) 92%,transparent);border-radius:16px;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.m.sys{animation:none}
+@keyframes pin{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 14px;border-radius:16px;border-bottom-left-radius:5px;background:var(--card);border:1px solid var(--line)}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bnc 1.1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bnc{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}
+#chips{padding:2px 14px 10px}#chips button{background:color-mix(in srgb,var(--card) 80%,transparent);border-radius:999px;padding:5px 12px;transition:.15s}#chips button:hover{background:var(--grad);color:#fff;border-color:transparent;transform:translateY(-1px)}
+#bar{border-top:0;padding:4px 12px 8px}
+#q{padding:10px 16px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}#q:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.rb{width:38px;height:38px;background:var(--grad);box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 35%,transparent);transition:transform .12s}.rb:hover{transform:scale(1.07)}.rb:active{transform:scale(.94)}.rb.alt{background:var(--card);box-shadow:none}.rb.rec{background:var(--err);box-shadow:0 0 0 6px rgba(192,57,43,.2)}
+.hint{padding:0 12px 10px;opacity:.8}
+.ib.on{color:#fff;background:var(--err)}#bRec{color:#e5484d}#bRec.on{color:#fff;animation:pulse 1.2s infinite}#bRec .t{font-size:11px;margin-left:3px}
+
+/* rich messages, charts and file cards */
+.m.b{max-width:96%}.m.b p{margin:0 0 .55em}.m.b p:last-child{margin-bottom:0}.m.b ul,.m.b ol{margin:.2em 0 .5em 1.2em;padding:0}.m.b li{margin:.15em 0}.m.b h3,.m.b h4,.m.b h5,.m.b h6{margin:.5em 0 .3em;font-size:1.02em}.m.b hr{border:0;border-top:1px solid var(--line);margin:.6em 0}
+.m.b code{font:12.5px ui-monospace,Menlo,monospace;background:color-mix(in srgb,var(--ink) 9%,transparent);border-radius:5px;padding:1px 5px}.m.b pre{background:color-mix(in srgb,var(--ink) 8%,transparent);border-radius:10px;padding:10px 12px;overflow:auto;margin:.4em 0}.m.b pre code{background:none;padding:0}
+.m.b a{color:var(--accent);text-decoration:underline;cursor:pointer}.rnoimg{color:var(--muted);font-size:12px;font-style:italic}.rimg{max-width:100%;border-radius:10px}
+.rtable{overflow:auto;margin:.4em 0;max-width:100%}.rtable table{border-collapse:collapse;font-size:12.5px;width:100%}.rtable th,.rtable td{border:1px solid var(--line);padding:5px 9px;text-align:left;white-space:nowrap}.rtable th{background:color-mix(in srgb,var(--accent) 16%,var(--card));font-weight:600}
+.rmore{color:var(--muted);font-size:11.5px;margin-top:6px}
+.rfwrap{width:96%;padding:12px}.rchart{min-width:240px}.rct{font-weight:600;margin-bottom:8px}.rcrow{display:grid;grid-template-columns:minmax(70px,34%) 1fr auto;gap:8px;align-items:center;margin:5px 0;font-size:12.5px}.rcl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rcbar{height:10px;border-radius:5px;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:hidden}.rcbar i{display:block;height:100%;border-radius:5px;background:var(--accent)}.rcv{color:var(--muted);font-variant-numeric:tabular-nums}
+.rfh{display:flex;gap:10px;align-items:center;margin-bottom:8px}.rfi{font-size:26px}.rfn{display:flex;flex-direction:column;min-width:0}.rfn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rfn small{color:var(--muted)}
+.rfb{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.rfb button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}.rfb button:hover{border-color:var(--accent);background:var(--accent);color:var(--accent-ink,#fff)}
+.rslides{margin:.2em 0 0 1.3em;padding:0;font-size:12.5px;color:var(--muted)}.rframe{width:100%;height:340px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:10px}#root[data-size="1"] .rframe{height:460px}#root[data-size="2"] .rframe{height:600px}
+#root[data-size="1"] #log,#root[data-size="2"] #log{font-size:15px}
+
+.rmedia{width:100%;border-radius:10px;background:#000;max-height:360px}.raudio{width:100%}.rtext{max-height:300px;overflow:auto;font-size:12px;margin:.3em 0}.rzoom{cursor:zoom-in;max-height:300px;object-fit:contain;display:block}.rzoom.rbig{max-height:none;cursor:zoom-out}
+#panel.dropping{outline:3px dashed var(--accent);outline-offset:-8px}
+#root[data-size="1"] .rzoom{max-height:420px}#root[data-size="2"] .rzoom{max-height:560px}#root[data-size="2"] .rzoom.rbig{max-height:none}
+#head .av{width:40px;height:40px;background:transparent;box-shadow:none;border-radius:0;font-size:0}#head .av svg{width:100%;height:100%;overflow:visible}
+/* the header portrait (same drawing as Tulai Desktop) */
+.companion-portrait{overflow:visible;flex:none;stroke:none!important;width:38px;height:42px}
+.portrait-float{animation:portrait-hover 4s ease-in-out infinite;transform-origin:24px 26px}.portrait-eyes{transform-origin:24px 20px;animation:companion-blink 5.8s infinite}
+.portrait-wave{transform-origin:36px 34px}.portrait-jets{animation:jet-pulse .9s ease-in-out infinite}
+@keyframes portrait-hover{50%{transform:translateY(-1.5px) rotate(-2deg)}}
+@keyframes portrait-wave{25%,75%{transform:rotate(-125deg)}50%{transform:rotate(-100deg)}}
+@media(prefers-reduced-motion:reduce){.companion-portrait *,.pi .command-icon,.pi .command-icon *{animation:none!important;transition:none!important}}
+#head .av .companion-portrait{width:40px;height:44px}
+@keyframes companion-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+</style>
+</head>
+<body>
+<div id="root" class="collapsed">
+  <div id="orb" class="idle" title="Click to talk · drag to move · or say “Hey Tulai”">
+    <svg viewBox="0 0 24 24"><path d="M3 11h18"/><path d="M7 20v-4a5 5 0 0 1 10 0v4"/><path d="M12 2.1l1.2 2.8 2.8 1.2-2.8 1.2L12 10.1l-1.2-2.8L8 6.1l2.8-1.2z" fill="#fff" stroke="none"/></svg>
+    <canvas id="robot" width="240" height="240"></canvas><div class="ring"></div><span class="badge" id="badge"></span>
+  </div>
+  <div id="panel">
+    <div id="head"><div class="av" id="av" aria-hidden="true"></div><div class="who"><b>Tulai</b></div><span id="stat">Ready</span><button class="ib" id="bRec" title="Record meeting notes">⏺</button><button class="ib" id="bMute" title="Voice replies on/off">🔊</button><button class="ib" id="bSize" title="Make the chat bigger or smaller">⤢</button><button class="ib" id="bMain" title="Open the Tulai window">↗</button><button class="ib" id="bHide" title="Collapse (Esc)">–</button></div>
+    <div id="log"></div>
+    <button type="button" id="toggleSuggestions" aria-controls="chips" aria-expanded="false">Show suggestions</button>
+    <div id="chips" hidden></div>
+    <form id="bar" autocomplete="off"><button type="button" class="rb alt" id="mic" title="Talk to Tulai">🎙</button><button type="button" class="rb alt" id="attachFile" title="Attach files (or drop them here)" aria-label="Attach files">📎</button><button type="button" class="rb alt" id="attachDir" title="Attach a folder (or drop it here)" aria-label="Attach a folder">📁</button><input type="file" id="pickFile" multiple hidden><input type="file" id="pickDir" webkitdirectory hidden><textarea id="q" rows="1" aria-label="Message Tulai" title="Enter to send · Shift+Enter for a new line" placeholder="Ask Tulai anything…" spellcheck="false"></textarea><button class="rb" id="go" title="Send">↑</button></form>
+    <div class="hint">Enter to send · Shift+Enter for a new line</div>
+    <div class="hint" id="hint">Say “Hey Tulai, …” any time</div>
+  </div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id), G = window.gc || {};
+let expanded = false, busy = false, speakOn = true, listening = false, voiceBlocked = '', cur = null, moved = false, pendingMissions = [];
+const CHIPS = ['Open Teams', 'Show my meetings', 'Start meeting notes', 'Stop meeting notes'];
+const pendingRequests = [];
+let requestIssue='',voiceIssue='';
+const setOrb = (s) => { if(s==='idle'&&(requestIssue||voiceIssue))s='attention'; const o = $('orb'); for (const c of ['idle', 'thinking', 'listening', 'speaking', 'attention']) o.classList.toggle(c, c === s); window.__pendingState = s; $('root').dataset.s = s; if (window.botScene) window.botScene.setState(s); };
+const esc = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function log(kind, text) { const d = document.createElement('div'); d.className = kind === 'u' ? 'm u' : kind === 'b' ? 'm b' : kind === 'sys' ? 'm sys' : 'chip ' + kind; if (kind === 'b' && text && window.TulaiRich) d.innerHTML = TulaiRich.html(text); else d.textContent = text; $('log').appendChild(d); $('log').scrollTop = $('log').scrollHeight; return d; }
+const status = (t) => { $('stat').textContent = t==='Ready'?(requestIssue||voiceIssue||t):t; };
+
+/* ---------- expand / collapse (the window itself resizes and keeps the orb in place) ---------- */
+let showChat = false;
+// Voice-only by default: only the robot is visible. The chat panel opens when you click the robot, or if "Show the chat window when I talk" is on, or when there is no spoken reply.
+async function pop() { try { const p = await G.getPrefs(); showChat = !!(p.voice && p.voice.chat); speakOn = p.voice?.speak !== false; } catch {} if (showChat || expanded || !speakOn) await setExpanded(true); }
+async function setExpanded(v) {
+  if (v === expanded) return; const r = await G.bot?.expand?.(v); expanded = v;
+  $('root').classList.toggle('collapsed', !v); $('root').classList.toggle('al-r', !!r?.alignRight); $('root').classList.toggle('al-b', !!r?.alignBottom);
+  if (v) { setTimeout(() => $('q').focus(), 80); if (!$('log').children.length) boot(); }
+}
+
+/* ---------- dragging: works from the orb and from the panel header ---------- */
+function makeDraggable(el, onClick) {
+  el.addEventListener('mousedown', async (e) => {
+    if (e.button !== 0 || e.target.closest('button')) return; const b = await G.bot.dragStart(); if (!b) return;
+    const sx = e.screenX, sy = e.screenY; moved = false;
+    let lx = sx, ly = sy; const mv = (ev) => { const dx = ev.screenX - sx, dy = ev.screenY - sy; if (!moved && Math.hypot(dx, dy) > 4) moved = true; if (moved) { G.bot.dragMove(b.x + dx, b.y + dy); window.botScene?.drag(ev.screenX - lx, ev.screenY - ly); lx = ev.screenX; ly = ev.screenY; } };
+    const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); if (moved) G.bot.dragEnd(); else if (onClick) onClick(); };
+    window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
+  });
+}
+makeDraggable($('orb'), () => { window.botScene?.poke(); setExpanded(!expanded); }); $('orb').addEventListener('dblclick', () => { window.botScene?.perform?.(['dance', 'spin', 'jump', 'celebrate'][Math.floor(Math.random() * 4)]); }); makeDraggable($('head'));
+/* ---------- files in the chat: shown when Tulai finds them, or when you drop or paste them here ---------- */
+function showView(d) { const box = log('b', ''); box.classList.add('rfwrap'); box.innerHTML = TulaiRich.viewCard(d); TulaiRich.fillText(box); const im = box.querySelector('img'); if (im) im.addEventListener('load', () => { $('log').scrollTop = $('log').scrollHeight; }); $('log').scrollTop = $('log').scrollHeight; return box; }
+async function uploadFile(f) {
+  if (!f || f.size > 25 * 1048576) { log('sys', f ? `${f.name} is bigger than 25 MB, so I cannot take it.` : 'Nothing to upload.'); return; } await pop(); log('u', `📎 ${f.name || 'pasted picture'}`);
+  try { const data = await new Promise((res, rej) => { const rd = new FileReader(); rd.onload = () => res(String(rd.result).split(',')[1] || ''); rd.onerror = rej; rd.readAsDataURL(f); });
+    const d = await (await fetch('/api/bot/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: f.name || 'pasted-' + Date.now() + '.png', data }) })).json(); if (d.error) throw new Error(d.error.message); showView(d); }
+  catch (e) { log('sys', '⚠ ' + (e.message || 'I could not take that file.')); }
+}
+const dropOn = $('panel'); ['dragenter', 'dragover'].forEach((t) => dropOn.addEventListener(t, (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); dropOn.classList.add('dropping'); } }));
+['dragleave', 'drop'].forEach((t) => dropOn.addEventListener(t, (e) => { if (t === 'drop' || e.target === dropOn) dropOn.classList.remove('dropping'); }));
+/** A dropped folder: walk its entries (skipping dependency/hidden folders), then send the readable files in one request. */
+async function walkEntry(entry, prefix, out) {
+  if (out.length > 400) return;
+  if (entry.isFile) { if (/(^|\/)(node_modules|\.git|dist|build|\.next|venv|__pycache__)\//.test(prefix)) return; await new Promise((res) => entry.file((f) => { out.push({ f, path: prefix + entry.name }); res(); }, res)); return; }
+  if (!entry.isDirectory || /^(node_modules|\.git|dist|build|\.next|venv|\.venv|__pycache__)$/.test(entry.name)) return;
+  const rd = entry.createReader(); for (;;) { const batch = await new Promise((res) => rd.readEntries(res, () => res([]))); if (!batch.length) break; for (const e of batch) await walkEntry(e, prefix + entry.name + '/', out); }
+}
+async function uploadFolder(entry) { const found = []; await walkEntry(entry, '', found); return sendFolder(entry.name, found); }
+async function sendFolder(name, found) {
+  const entry = { name }; await pop(); log('u', `📁 ${name}`);
+  const take = found.filter((x) => x.f.size <= 2 * 1048576).slice(0, 300); if (!take.length) { log('sys', 'I found nothing readable in that folder.'); return; }
+  try { const files = []; for (const x of take) { const data = await new Promise((res, rej) => { const rd = new FileReader(); rd.onload = () => res(String(rd.result).split(',')[1] || ''); rd.onerror = rej; rd.readAsDataURL(x.f); }); files.push({ path: x.path, data }); }
+    const d = await (await fetch('/api/bot/upload-folder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: entry.name, files }) })).json(); if (d.error) throw new Error(d.error.message);
+    const sk = d.skipped || {}, skipped = (sk.secrets || 0) + (sk.binary || 0) + (sk.big || 0) + (sk.limit || 0);
+    log('b', `📁 **${entry.name}**: I can read **${d.kept}** files${skipped ? ` and skipped ${skipped} (secrets${sk.secrets ? ' ' + sk.secrets : ''}, pictures/binaries, dependency folders, files over 2 MB)` : ''}.\n\n${(d.tree || []).slice(0, 12).map((p) => '- `' + p + '`').join('\n')}${d.kept > 12 ? '\n- …' : ''}\n\nAsk me to *explain this folder*, or ask about any file in it.`); }
+  catch (e) { log('sys', '⚠ ' + (e.message || 'I could not take that folder.')); }
+}
+$('attachFile').addEventListener('click', () => $('pickFile').click()); $('attachDir').addEventListener('click', () => $('pickDir').click());
+$('pickFile').addEventListener('change', (e) => { [...e.target.files].slice(0, 5).forEach(uploadFile); e.target.value = ''; });
+$('pickDir').addEventListener('change', (e) => { const fs_ = [...e.target.files]; if (!fs_.length) return; const root = (fs_[0].webkitRelativePath || fs_[0].name).split('/')[0];
+  const found = fs_.filter((f) => !/(^|\/)(node_modules|\.git|dist|build|\.next|venv|\.venv|__pycache__)\//.test(f.webkitRelativePath || '')).map((f) => ({ f, path: f.webkitRelativePath || f.name })); e.target.value = ''; sendFolder(root, found); });
+dropOn.addEventListener('drop', (e) => { const items = [...(e.dataTransfer?.items || [])], ents = items.map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean); if (!ents.length && !(e.dataTransfer?.files || []).length) return; e.preventDefault();
+  if (ents.some((x) => x.isDirectory)) { ents.forEach((x) => (x.isDirectory ? uploadFolder(x) : x.file(uploadFile))); return; } [...(e.dataTransfer?.files || [])].slice(0, 5).forEach(uploadFile); });
+$('q').addEventListener('paste', (e) => { const files = [...(e.clipboardData?.files || [])].filter((f) => f.type.startsWith('image/')); if (files.length) { e.preventDefault(); files.forEach(uploadFile); } });
+$('log').addEventListener('click', (e) => {
+  const z = e.target.closest('.rzoom'); if (z) { z.classList.toggle('rbig'); return; }
+  const o = e.target.closest('[data-vopen]'), rv = e.target.closest('[data-vreveal]'), s = e.target.closest('[data-say]');
+  if (o) G.openView?.(decodeURIComponent(o.dataset.vopen)); else if (rv) G.revealView?.(decodeURIComponent(rv.dataset.vreveal)); else if (s) say(s.dataset.say);
+});
+/* ---------- bigger or smaller chat, and what the cards in it do ---------- */
+let sizeLevel = 0; const SIZE_NAMES = ['Compact', 'Large', 'Extra large'];
+async function applySize(l) { sizeLevel = ((l % 3) + 3) % 3; try { await G.bot?.size?.(sizeLevel); } catch {} $('bSize').title = 'Chat size: ' + SIZE_NAMES[sizeLevel] + ' (click to change)'; $('root').dataset.size = sizeLevel; }
+$('bSize').onclick = () => applySize(sizeLevel + 1);
+(async () => { try { const p = await G.getPrefs(); if (p.panelSize) { sizeLevel = +p.panelSize || 0; $('root').dataset.size = sizeLevel; } } catch {} })();
+$('log').addEventListener('click', async (e) => {
+  const t = e.target.closest('[data-open],[data-reveal],[data-preview],a[data-ext]'); if (!t) return; e.preventDefault();
+  if (t.dataset.ext) return G.openUrl?.(t.dataset.ext);
+  if (t.dataset.open) return G.openFile?.(decodeURIComponent(t.dataset.open));
+  if (t.dataset.reveal) return G.revealFile?.(decodeURIComponent(t.dataset.reveal));
+  if (t.dataset.preview) { const card = t.closest('.rfile'), box = card.querySelector('.rfp'); if (box.firstChild) { box.innerHTML = ''; t.textContent = 'Preview here'; } else { box.innerHTML = TulaiRich.previewFrame(decodeURIComponent(t.dataset.preview), t.dataset.extKind); t.textContent = 'Hide preview'; $('log').scrollTop = $('log').scrollHeight; } }
+});
+$('bHide').onclick = () => setExpanded(false); $('bMain').onclick = () => G.focus?.();
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setExpanded(false); });
+
+/* ---------- talking to the agent ---------- */
+async function say(text, spoken, followup) {
+  text = text.trim(); if (!text) return;
+  if (busy) {
+    if (/^(stop|cancel|stop working|cancel that)[.!?]?$/i.test(text)) { pendingRequests.length=0; await fetch('/api/bot/stop',{method:'POST'}); G.voice?.stopSpeaking?.(); status('Stopping…'); return; }
+    if (pendingRequests.some(r=>r.text.toLowerCase()===text.toLowerCase())) { status('I already have that queued.'); return; }
+    if (pendingRequests.length>=3) { log('sys','I have three requests waiting. Please let me finish, or say “stop”.'); return; }
+    pendingRequests.push({text,spoken,followup}); log('sys',`I heard you. Queued: ${text}`); status(`${pendingRequests.length} waiting`); return;
+  }
+  requestIssue=''; busy = true; await pop(); log('u', text); const typing = document.createElement('div'); typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>'; $('log').appendChild(typing); $('log').scrollTop = $('log').scrollHeight; $('q').value = ''; growComposer(); $('q').classList.remove('live'); setOrb('thinking'); status('Thinking…'); G.voice?.stopSpeaking?.();
+  let bubble = null, full = '', chip = null, silent = false, errMsg = '';
+  try {
+    const r = await fetch('/api/bot/say', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: !!spoken, followup: !!followup }) });
+    if (!r.ok || !r.body) { const j = await r.json().catch(() => ({})); throw new Error(j.error?.message || 'HTTP ' + r.status); }
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+    for (;;) {
+      const { done, value } = await rd.read(); if (done) break; buf += dec.decode(value, { stream: true }); const parts = buf.split('\n\n'); buf = parts.pop();
+      for (const p of parts) { if (!p.startsWith('data:')) continue; let ev; try { ev = JSON.parse(p.slice(5)); } catch { continue; }
+        if (ev.type === 'text') { typing.remove(); if (!bubble) { bubble = log('b', ''); } full += ev.delta; if (window.TulaiRich) bubble.innerHTML = TulaiRich.html(full); else bubble.textContent = full; $('log').scrollTop = $('log').scrollHeight; status('Replying…'); }
+        else if(ev.type==='document_navigation'){const box=log('b','');for(const [label,command] of [['Previous','previous page'],['Next section','next page'],['Group documents','group my documents'],['Stop reading','stop reading']]){const b=document.createElement('button');b.textContent=label;b.dataset.say=command;box.append(b);}box.classList.add('rfb');}
+        else if (ev.type === 'chart' && ev.chart) { drawChart(ev.chart); }
+        else if (ev.type === 'views' && Array.isArray(ev.views)) { for (const v of ev.views) showView(v); }
+        else if (ev.type === 'terminal') { window.TulaiTerminal && window.TulaiTerminal.open({ tool: ev.tool, install: ev.install }); } // "log in to claude": a real terminal in this window
+        else if (ev.type === 'note' && ev.text) log('sys', 'ℹ ' + ev.text);
+        else if (ev.type === 'files' && Array.isArray(ev.files)) { for (const f of ev.files) { const box = log('b', ''); box.classList.add('rfwrap'); box.innerHTML = TulaiRich.attachment(f); } $('log').scrollTop = $('log').scrollHeight; }
+        else if (ev.type === 'tool') { bubble = null; const nm = ev.name.startsWith('mcp__') ? ev.name.split('__').slice(1).join(' › ') : ev.name.replace(/_/g, ' '); chip = log('run', `${nm}${ev.args?.action ? ': ' + ev.args.action : ''}${ev.args?.url ? ' ' + ev.args.url : ev.args?.path ? ' ' + ev.args.path : ev.args?.command ? ' ' + ev.args.command.slice(0, 40) : ''}`); chip.dataset.id = ev.id; status('Working…'); }
+        else if (ev.type === 'approval') { approvalCard(ev); setOrb('attention'); status('Needs your OK'); }
+        else if (ev.type === 'plan') { planCard(ev); setOrb('attention'); status('Plan ready'); }
+        else if (ev.type === 'tool_result') { const c = [...$('log').querySelectorAll('.chip')].find((x) => x.dataset.id === ev.id); if (c) { c.classList.remove('run'); if (ev.error) c.classList.add('err'); } }
+        else if (ev.type === 'running') { document.querySelectorAll('.appr[data-id="' + ev.id + '"]').forEach((x) => x.remove()); if (busy) setOrb('thinking'); }
+        else if (ev.type === 'error') { requestIssue='Request failed';log('sys', '⚠ ' + ev.message); errMsg = ev.message; }
+        else if (ev.type === 'perform') { if (performance.now() - (window.__lastMove || 0) > 800) { window.__lastMove = performance.now(); window.botScene?.perform?.(ev.move); } }
+        else if (ev.type === 'learned_memory') { log('sys', 'Remembered: ' + ev.text); }
+        else if (ev.type === 'memory_error') { log('sys', ev.message); }
+        else if (ev.type === 'silent') { silent = true; $('log').lastElementChild?.remove(); }
+        else if (ev.type === 'limit') { log('sys', 'Paused: used its step budget. Say “continue” to keep going.'); } }
+    }
+  } catch (e) { requestIssue='Request failed';errMsg = e.message || 'Request failed'; log('sys', '⚠ ' + errMsg); }
+  if(!full&&!silent&&!errMsg)requestIssue='No result received';
+  typing.remove(); busy = false; setTimeout(loadChips, 400); document.querySelectorAll('.appr').forEach((x) => x.remove()); setOrb('idle'); status('Ready');
+  if (pendingRequests.length) { const next=pendingRequests.shift(); queueMicrotask(()=>say(next.text,next.spoken,next.followup)); return; }
+  if (silent) return;
+  if (errMsg && !full) { const offline = /ENOTFOUND|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|fetch failed|network|certificate|getaddrinfo/i.test(errMsg); const line = offline ? 'I could not reach the service for this request. Please check your connection and try again.' : 'Sorry, something went wrong with that request.'; await pop(); log('sys', line); if (speakOn) { setOrb('speaking'); G.voice?.speak?.(line); } return; }
+  if (full && speakOn) { setOrb('speaking'); G.voice?.speak?.(full); } else if (!full) log('sys', 'I did not receive a result. Please try again.'); else if (/\?\s*$/.test(full)) G.voice?.arm?.(); /* a typed chat that asks you something: you may answer by voice without the wake word */
+}
+function drawChart(chart) { const box = log('b', ''); box.classList.add('rfwrap'); box.innerHTML = TulaiRich.chart(chart) + (chart.kind === 'memory-snapshot' ? '<div class="rmore">Current counts only, not model-training progress</div>' : ''); $('log').scrollTop = $('log').scrollHeight; }
+/** The coding agent's plan (plan mode): read it, then let it start editing, have it ask first, or stop. */
+function planCard(ev) {
+  const d = document.createElement('div'); d.className = 'appr'; d.dataset.id = ev.id; d.innerHTML = `<div><b>Plan ready</b></div><div class="b" style="margin:6px 0">${window.TulaiRich ? TulaiRich.html(ev.plan || '') : esc(ev.plan || '')}</div><button class="go" data-d="plan_edits">Go ahead</button><button data-d="plan_ask">Ask me before each change</button><button data-d="deny">Stop</button>`;
+  d.onclick = async (e) => { const k = e.target.dataset.d; if (!k) return; d.remove(); await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ev.key, decision: k }) }); };
+  $('log').appendChild(d); $('log').scrollTop = $('log').scrollHeight; if (G.voice?.ding) G.voice.ding();
+}
+function approvalCard(ev) {
+  const d = document.createElement('div'); d.className = 'appr'; d.dataset.id = ev.id; d.innerHTML = `<div><b>${esc(ev.name)}</b> needs your OK${ev.reason ? ': ' + esc(ev.reason) : ''}</div><button class="go" data-d="allow">Allow</button><button data-d="deny">Deny</button>${ev.lock ? '' : '<button data-d="always">Always</button>'}`;
+  d.onclick = async (e) => { const k = e.target.dataset.d; if (!k) return; d.remove(); await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ev.key, decision: k }) }); };
+  $('log').appendChild(d); $('log').scrollTop = $('log').scrollHeight; if (G.voice?.ding) G.voice.ding();
+}
+function growComposer(){const q=$('q');q.style.height='auto';q.style.height=Math.min(q.scrollHeight,120)+'px';}
+$('q').addEventListener('input',growComposer);
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$('bar').requestSubmit();}});
+$('bar').onsubmit = (e) => { e.preventDefault(); say($('q').value); };
+const suggestionsKey='tulai.bot.suggestions.visible';
+let suggestionsVisible=false;
+try{suggestionsVisible=localStorage.getItem(suggestionsKey)==='true';}catch{}
+function syncSuggestions(){
+ $('chips').hidden=!suggestionsVisible;
+ $('toggleSuggestions').textContent=suggestionsVisible?'Hide suggestions':'Show suggestions';
+ $('toggleSuggestions').setAttribute('aria-expanded',String(suggestionsVisible));
+}
+$('toggleSuggestions').onclick=()=>{suggestionsVisible=!suggestionsVisible;try{localStorage.setItem(suggestionsKey,String(suggestionsVisible));}catch{}syncSuggestions();if(suggestionsVisible)loadChips();};
+syncSuggestions();
+/* the quick buttons follow your day and your own habits (what is happening now, then what you usually ask at this time) */
+const drawChips = (list) => { $('chips').innerHTML = list.map((c) => `<button>${esc(c)}</button>`).join(''); };
+async function loadChips() { if(!suggestionsVisible)return; try { const r = await (await fetch('/api/bot/suggestions')).json(); if (r.chips && r.chips.length) return drawChips(r.chips); } catch {} drawChips(CHIPS); }
+drawChips(CHIPS); loadChips(); setInterval(() => { if (!document.hidden && !busy) loadChips(); }, 60000);
+$('chips').onclick = (e) => { if (e.target.tagName === 'BUTTON') say(e.target.textContent); };
+
+/* ---------- voice ---------- */
+$('mic').onclick = () => { if (listening) { G.voice?.stop?.(); return; } if (!G.voice) return log('sys', 'Voice needs the Tulai desktop app.'); G.voice.stopSpeaking?.(); G.voice.once(); };
+G.voice?.onEvent?.(async (ev) => {
+  if (ev.type === 'ready') { if (ev.mode === 'once') { listening = true; $('mic').classList.add('rec'); await pop(); setOrb('listening'); status('Listening…'); $('q').classList.add('live'); $('q').value = ''; } else { voiceBlocked = ''; voiceIssue=''; $('hint').textContent = 'Say “Hey Tulai, …” any time'; } }
+  else if (ev.type === 'wake') { await pop(); setOrb('listening'); status('Listening…'); if (!ev.greet && !ev.followup) G.voice.stopSpeaking?.(); /* never cut off Tulai's own "Yes?" */ $('q').classList.add('live'); $('q').placeholder = 'Listening…'; }
+  else if (ev.type === 'partial') { if (userTyping()) return; await pop(); $('q').classList.add('live'); $('q').value = ev.text; }
+  else if (ev.type === 'skin') { window.__pendingSkin = ev.skin; if (ev.appearance) window.__appearance = ev.appearance; window.botScene?.setSkin?.(ev.skin); paint(ev.skin, ev.appearance); }
+  else if (ev.type === 'cursor') { window.botScene?.lookAt?.(ev.dx, ev.dy); }
+  else if (ev.type === 'perform') { if (performance.now() - (window.__lastMove || 0) > 800) { window.__lastMove = performance.now(); window.botScene?.perform?.(ev.move); } }
+  else if (ev.type === 'live-answer' && ev.text) { log('b', `💡 **Suggested answer** to: _${ev.question.replace(/[_*]/g, '')}_\n\n${ev.text}`); $('log').scrollTop = $('log').scrollHeight; }
+  else if (ev.type === 'notes' && ev.text) { log('b', ev.text); $('log').scrollTop = $('log').scrollHeight; }
+  else if (ev.type === 'reminder') { setOrb('attention'); status('Reminder'); window.botScene?.poke?.(); setTimeout(() => { if (!busy) { setOrb('idle'); status('Ready'); } }, 12000); log('b', '**Reminder**\n\n' + (ev.text || 'Your reminder is due.').replace(/^Reminder:\s*/i, '')); }
+  else if (ev.type === 'memory') { window.botScene?.setMemory?.(ev.level); $('orb').title = `Memory ${ev.freePct}% free${ev.level !== 'normal' ? ' · ' + ev.level : ''}`; }
+  else if (ev.type === 'level') { $('orb').style.setProperty('--lv', 1 + Math.min(0.5, ev.v)); window.botScene?.level(ev.v); }
+  else if (ev.type === 'final' && userTyping() && ev.armed !== undefined) { /* you are typing: sounds around you (a video, a call, a colleague) must not answer for you */ listening = false; $('mic').classList.remove('rec'); $('q').classList.remove('live'); $('q').placeholder = 'Ask Tulai anything…'; }
+  else if (ev.type === 'final') { listening = false; $('mic').classList.remove('rec'); $('q').classList.remove('live'); $('q').placeholder = 'Ask Tulai anything…'; setOrb('idle'); const t = (ev.text || '').trim(); if (t) say(t, true, ev.armed); else { $('q').value = ''; status(ev.reason === 'no_speech' ? 'I did not hear anything' : 'Yes?'); } }
+  else if (ev.type === 'idle') { listening = false; $('mic').classList.remove('rec'); if (!busy) setOrb('idle'); }
+  else if (ev.type === 'speaking') { if (ev.on) setOrb('speaking'); else if (!busy) { setOrb('idle'); status('Ready'); } }
+  else if (ev.type === 'error') { listening = false; $('mic').classList.remove('rec'); voiceBlocked = ev.code; voiceIssue='Microphone unavailable';setOrb('idle');status(voiceIssue); $('hint').textContent = '🎙 ' + ev.message; await setExpanded(true); log('sys', '🎙 ' + ev.message); }
+});
+
+/* ---------- boot, missions that need you ---------- */
+async function boot() {
+  try { const s = await (await fetch('/api/bot/state')).json(); for (const m of s.messages) {log(m.role === 'user' ? 'u' : 'b', m.content);for(const view of m.views||[])showView(view);} if (!s.messages.length) log('sys', 'Hi, I’m Tulai. Type, tap the mic, or say “Hey Tulai” followed by what you need.'); } catch {}
+}
+async function pollMissions() {
+  try { const d = await (await fetch('/api/missions')).json(); const pend = d.missions.flatMap((m) => m.pending.map((p) => ({ ...p, title: m.title }))); const run = d.missions.filter((m) => m.running).length;
+    const n = pend.length; $('badge').textContent = n ? n : ''; $('badge').classList.toggle('on', !!n);
+    if (n && !busy && !listening) setOrb('attention'); else if (!n && !busy && !listening && $('orb').classList.contains('attention')) setOrb('idle');
+    for (const p of pend) if (!pendingMissions.includes(p.key)) { pendingMissions.push(p.key); if (expanded) { const el = document.createElement('div'); el.className = 'appr'; el.innerHTML = `<div><b>Mission “${esc(p.title)}”</b> wants ${esc(p.name)}${p.reason ? ': ' + esc(p.reason) : ''}</div><button class="go" data-d="allow">Allow</button><button data-d="deny">Deny</button>`; el.onclick = async (e) => { const k = e.target.dataset.d; if (!k) return; el.remove(); await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.key, decision: k }) }); }; $('log').appendChild(el); $('log').scrollTop = $('log').scrollHeight; } }
+    if (!busy && !listening) status(run ? `${run} mission${run > 1 ? 's' : ''} working…` : 'Ready');
+  } catch {}
+}
+setInterval(pollMissions, 4000); pollMissions();
+(async () => { try { const p = await G.getPrefs(); speakOn = p.voice?.speak !== false; } catch {} })();
+
+
+/* ---------- typing wins over listening: while you type, nothing heard from the room is sent or written into the box ---------- */
+let typedAt = 0; const userTyping = () => $('q').value.trim() !== '' && (performance.now() - typedAt < 15000 || document.activeElement === $('q')) && !$('q').classList.contains('live');
+$('q').addEventListener('input', (e) => { if (e.isTrusted) { typedAt = performance.now(); $('q').classList.remove('live'); } });
+/* ---------- colours: the same palette as Tulai Desktop (chosen in Bot Studio) ---------- */
+const setAvatar = (skin) => { try { if (window.TulaiIcons) { TulaiIcons.sync(skin || {}); $('av').innerHTML = TulaiIcons.bot(); } } catch {} }; /* the header shows the bot you chose (type and colours), not a letter */
+const paint = (skin, appearance) => { setAvatar(skin); try { window.TulaiPalette && window.TulaiPalette.apply(skin || {}, appearance || window.__appearance || 'neon'); } catch {} };
+paint(window.__pendingSkin, window.__appearance); setAvatar(window.__pendingSkin);
+/* ---------- header controls: record meeting notes, mute voice replies ---------- */
+let recOn = false;
+async function syncRec() { try { const s = await (await fetch('/api/meeting/state')).json(); recOn = !!s.recording; $('bRec').classList.toggle('on', recOn); $('bRec').title = recOn ? 'Stop meeting notes' : 'Record meeting notes'; $('bRec').innerHTML = recOn ? '⏺<span class="t">' + Math.max(1, Math.round((Date.now() - s.since) / 60000)) + 'm</span>' : '⏺'; } catch {} }
+$('bRec').onclick = async () => { const r = await (await fetch('/api/meeting/' + (recOn ? 'stop' : 'start'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json().catch(() => ({})); if (r.reply) log('sys', r.reply); await syncRec(); };
+const syncMute = () => { $('bMute').textContent = speakOn ? '🔊' : '🔇'; $('bMute').classList.toggle('on', !speakOn); };
+$('bMute').onclick = async () => { speakOn = !speakOn; syncMute(); if (!speakOn) G.voice?.stopSpeaking?.(); try { await G.setPrefs?.({ voice: { speak: speakOn } }); } catch {} };
+(async () => { try { const p = await G.getPrefs(); speakOn = p.voice?.speak !== false; if (p.appearance) window.__appearance = p.appearance; if (p.skin) { window.__pendingSkin = p.skin; window.botScene?.setSkin?.(p.skin); } paint(p.skin, p.appearance); } catch {} syncMute(); })();
+setInterval(syncRec, 5000); syncRec();
+document.addEventListener('contextmenu', (e) => { e.preventDefault(); try { G.botMenu && G.botMenu(); } catch {} }); /* right-click the robot: Hide, Open Tulai Desktop */
+</script>
+<script type="module" src="/bot-robot.js"></script>
+<script src="/approvals-panel.js"></script>
+<script src="/term-panel.js"></script>
+</body>
+</html>

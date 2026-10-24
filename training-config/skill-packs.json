@@ -1,0 +1,1283 @@
+{
+  "about": "Skill packs: one-click fine-tuning for a professional skill. Rows are computed by code (never guessed); every pack has held-out checks that the trained model must pass before it is ever used. Pack versions are written by scripts/pack-versions.js on release.",
+  "packs": [
+    {
+      "id": "jira-mastery",
+      "name": "Jira Mastery",
+      "icon": "🎯",
+      "summary": "Think and answer like a Jira power user: write JQL, know every issue type, link and field, estimate with story points, read sprint numbers and forecast velocity, write user stories and acceptance criteria, and say \"I don't have that\" instead of guessing.",
+      "learns": [
+        "JQL from plain English (assignee, sprint, status, priority, labels, dates, ordering)",
+        "Issue types, link types (blocks / is blocked by) and JQL field names, from 16 real Jira sites",
+        "Story points: Fibonacci scale, when to split a story",
+        "Sprint health from numbers: completion %, scope added, issues per developer; velocity average and sprints needed",
+        "User stories and Given/When/Then acceptance criteria",
+        "Honest answers when Jira data is missing"
+      ],
+      "generators": [
+        "jira_issue_type",
+        "jira_subtask",
+        "jira_link",
+        "jira_link",
+        "jira_field",
+        "jira_field",
+        "jira_field",
+        "jira_jql",
+        "jira_jql",
+        "jira_jql",
+        "jira_jql",
+        "jira_jql",
+        "jira_points",
+        "jira_velocity",
+        "jira_velocity",
+        "jira_velocity",
+        "jira_forecast",
+        "jira_forecast",
+        "jira_forecast",
+        "jira_story",
+        "jira_priority",
+        "jira_honest",
+        "jira_jql",
+        "jira_jql",
+        "jira_jql",
+        "jira_field",
+        "jira_field",
+        "jira_link",
+        "jira_link",
+        "jira_points",
+        "jira_points",
+        "jira_story_ac",
+        "jira_story_ac",
+        "jira_honest",
+        "jira_honest",
+        "jira_concept",
+        "jira_concept",
+        "jira_honest"
+      ],
+      "rows": 1500,
+      "data": [
+        "sprint-velocity"
+      ],
+      "sources": [
+        {
+          "label": "The Public Jira Dataset (issue types, link types, fields)",
+          "license": "CC BY 4.0",
+          "url": "https://zenodo.org/records/15719919",
+          "note": "Only the small data-definition files are used; the 5.5 GB database dump is never downloaded."
+        },
+        {
+          "label": "Agile Scrum Sprint Velocity Data Set (real sprint rows)",
+          "license": "No license declared by the author",
+          "url": "https://github.com/RandulaKoralage/AgileScrumSprintVelocityDataSet",
+          "note": "Optional download. Used only on this Mac to shape the training numbers; never copied into the app or shared. Ask the author before publishing a model trained on it."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Write a JQL query for: bugs in project OPS that are still open and labeled urgent, newest first. Return only the JQL.",
+          "match": "(?=.*project = OPS)(?=.*issuetype = Bug)(?=.*resolution = Unresolved)(?=.*labels = urgent)(?=.*ORDER BY created DESC)"
+        },
+        {
+          "prompt": "JQL for: stories assigned to me in the current sprint with high priority. Return only the JQL.",
+          "match": "(?=.*issuetype = Story)(?=.*assignee = currentUser\\(\\))(?=.*sprint in openSprints\\(\\))(?=.*priority = High)"
+        },
+        {
+          "prompt": "Tell me the JQL clause name for the Resolved field.",
+          "match": "resolutiondate"
+        },
+        {
+          "prompt": "Explain what Jira's Improvement issue type is.",
+          "match": "improve|enhance"
+        },
+        {
+          "prompt": "Ticket APP-5 duplicates APP-9 in Jira. What wording does APP-9 show for APP-5?",
+          "match": "is duplicated by"
+        },
+        {
+          "prompt": "Sprint data: 30 issues planned, 24 completed, 2 punted, 6 added during the sprint, 4 developers, 14 days. Return JSON only with completed, developers, completion_percent, scope_added_percent and issues_per_developer.",
+          "match": "(?=.*\"completed\":\\s*24\\b)(?=.*\"developers\":\\s*4\\b)(?=.*\"completion_percent\":\\s*80\\b)(?=.*\"scope_added_percent\":\\s*20\\b)(?=.*\"issues_per_developer\":\\s*6)"
+        },
+        {
+          "prompt": "Velocity of the last three sprints: 21, 24, 18. Remaining backlog: 100 story points. Return JSON only with total_points (of the three sprints), average_velocity (one decimal), exact_sprints (backlog divided by the average, one decimal) and sprints_needed (rounded up).",
+          "match": "(?=.*\"total_points\":\\s*63\\b)(?=.*\"average_velocity\":\\s*21.0)(?=.*\"exact_sprints\":\\s*4.8)(?=.*\"sprints_needed\":\\s*5\\b)"
+        },
+        {
+          "prompt": "Round 10 story points up to the next Fibonacci value. Answer with just the number.",
+          "match": "^\\W*13\\W*$"
+        },
+        {
+          "prompt": "Write a Jira user story. Role: customer. Goal: track my order status. Benefit: I know when it arrives.",
+          "match": "As a customer, I want to track my order status, so that I know when it arrives"
+        },
+        {
+          "prompt": "How many bugs are open in Jira right now? Jira is not connected.",
+          "match": "don'?t have|do not have|can'?t|cannot|not connected|no data",
+          "not": "\\b\\d+ (?:open )?bugs"
+        }
+      ]
+    },
+    {
+      "id": "git-mastery",
+      "name": "Git & Merge Request Mastery",
+      "icon": "🌿",
+      "summary": "Exact git commands for everyday tasks, Conventional Commit messages and ticket-based branch names, so the bot never guesses a command.",
+      "learns": [
+        "Everyday git: undo, stash, rebase, cherry-pick, tags, upstream",
+        "Conventional Commits: feat, fix, docs, refactor, test, chore",
+        "Branch names from a ticket (type/TICKET-short-slug)"
+      ],
+      "generators": [
+        "git_cmd",
+        "git_cmd",
+        "git_cmd",
+        "git_commit",
+        "git_commit",
+        "git_branch",
+        "git_cmd",
+        "git_cmd",
+        "git_commit",
+        "git_commit",
+        "git_commit"
+      ],
+      "rows": 900,
+      "data": [],
+      "sources": [
+        {
+          "label": "Git documentation and the Conventional Commits 1.0.0 specification",
+          "license": "Free to use (GPL-2.0 docs / CC BY 3.0 spec)",
+          "url": "https://www.conventionalcommits.org/en/v1.0.0/",
+          "note": "Rows are computed by code from a command table; no text is copied."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Which git command lets me stash my unsaved work for later? Reply with just the command.",
+          "match": "^\\W*git stash\\W*$"
+        },
+        {
+          "prompt": "Give me the git command to uncommit the last commit and leave the files staged. Reply with just the command.",
+          "match": "git reset --soft HEAD~1"
+        },
+        {
+          "prompt": "Git: how do I publish my new branch to origin and track it? Reply with just the command.",
+          "match": "git push -u origin HEAD"
+        },
+        {
+          "prompt": "Write a Conventional Commits message. Type: fix. Scope: calendar. Summary: handle all-day events.",
+          "match": "^\\W*fix\\(calendar\\): handle all-day events\\W*$"
+        },
+        {
+          "prompt": "Write a Conventional Commits message with no scope. Type: docs. Summary: explain the release steps.",
+          "match": "^\\W*docs: explain the release steps\\W*$"
+        },
+        {
+          "prompt": "Branch name for ticket MBM-204 \"Add export to PDF\". Convention: type/TICKET-short-slug with type feature.",
+          "match": "feature/MBM-204-add-export-to-pdf"
+        },
+        {
+          "prompt": "In Conventional Commits, what does the type \"refactor\" mean?",
+          "match": "neither fixes a bug nor adds a feature|restructur|without changing"
+        },
+        {
+          "prompt": "Which git command lets me bring back the stashed work and remove it from the stash? Reply with just the command.",
+          "match": "git stash pop"
+        },
+        {
+          "prompt": "Give me the git command to switch to the branch feature/PAY-9-login. Reply with just the command.",
+          "match": "^\\W*git (switch|checkout) feature/PAY-9-login\\W*$"
+        },
+        {
+          "prompt": "Which git command lets me stage every changed file? Reply with just the command.",
+          "match": "^\\W*git add -A\\W*$"
+        }
+      ]
+    },
+    {
+      "id": "reporting-mastery",
+      "name": "Lead Reporting Mastery",
+      "icon": "📊",
+      "summary": "For leads: status colours worked out from the numbers (Green, Amber, Red), tidy weekly status updates and clear risk entries.",
+      "learns": [
+        "RAG status from progress against time elapsed",
+        "Weekly status: Done, In progress, Blockers",
+        "Risk entries: level, impact, mitigation"
+      ],
+      "generators": [
+        "report_rag",
+        "report_rag",
+        "report_status",
+        "report_risk",
+        "report_risk",
+        "report_risk",
+        "report_risk",
+        "report_risk",
+        "report_risk",
+        "report_risk",
+        "report_rag"
+      ],
+      "rows": 1400,
+      "data": [],
+      "sources": [
+        {
+          "label": "Generated by code from the rules written in training-config/skill-packs.json",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside data."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Sprint status: 9 of 30 points done, 3 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*30\\b)(?=.*\"days_elapsed\":\\s*7\\b)(?=.*\"percent_time_elapsed\":\\s*70\\b)(?=.*\"gap\":\\s*40\\b)(?=.*\"status\":\\s*\"Red\")"
+        },
+        {
+          "prompt": "Sprint status: 24 of 30 points done, 3 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*80\\b)(?=.*\"days_elapsed\":\\s*7\\b)(?=.*\"percent_time_elapsed\":\\s*70\\b)(?=.*\"gap\":\\s*-10\\b)(?=.*\"status\":\\s*\"Green\")"
+        },
+        {
+          "prompt": "Format a weekly status. Done: Closed 3 tickets. In progress: Writing the guide. Blockers: none.",
+          "match": "(?=.*Done:)(?=.*In progress:)(?=.*Blockers:)(?=.*- Closed 3 tickets)(?=.*- Writing the guide)(?=.*- None)"
+        },
+        {
+          "prompt": "Write a risk entry. Risk: the test server is shared. Impact: tests may collide. Mitigation: book time slots. Level: Medium.",
+          "match": "Risk \\(Medium\\): The test server is shared\\. Impact: tests may collide\\. Mitigation: book time slots"
+        },
+        {
+          "prompt": "Sprint status: 20 of 40 points done, 5 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*50\\b)(?=.*\"days_elapsed\":\\s*5\\b)(?=.*\"percent_time_elapsed\":\\s*50\\b)(?=.*\"gap\":\\s*0\\b)(?=.*\"status\":\\s*\"Green\")"
+        },
+        {
+          "prompt": "Sprint status: 16 of 40 points done, 4 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*40\\b)(?=.*\"days_elapsed\":\\s*6\\b)(?=.*\"percent_time_elapsed\":\\s*60\\b)(?=.*\"gap\":\\s*20\\b)(?=.*\"status\":\\s*\"Amber\")"
+        },
+        {
+          "prompt": "Sprint status: 15 of 30 points done, 6 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*50\\b)(?=.*\"days_elapsed\":\\s*4\\b)(?=.*\"percent_time_elapsed\":\\s*40\\b)(?=.*\"gap\":\\s*-10\\b)(?=.*\"status\":\\s*\"Green\")"
+        },
+        {
+          "prompt": "Sprint status: 20 of 40 points done, 3 of 10 days left. Return JSON only with percent_done, days_elapsed (days in the sprint minus days left), percent_time_elapsed, gap and status (Green, Amber or Red). Rule: gap = percent_time_elapsed minus percent_done; Green if the gap is 10 or less, Amber if 25 or less, else Red.",
+          "match": "(?=.*\"percent_done\":\\s*50\\b)(?=.*\"days_elapsed\":\\s*7\\b)(?=.*\"percent_time_elapsed\":\\s*70\\b)(?=.*\"gap\":\\s*20\\b)(?=.*\"status\":\\s*\"Amber\")"
+        },
+        {
+          "prompt": "Format a weekly status. Done: Closed 3 tickets; Fixed login. In progress: Writing the guide. Blockers: VPN is down.",
+          "match": "(?=.*- Closed 3 tickets)(?=.*- Fixed login)(?=.*- Writing the guide)(?=.*- VPN is down)(?=.*Blockers:)"
+        },
+        {
+          "prompt": "Write a risk entry. Risk: the build is slow. Impact: releases take longer. Mitigation: cache dependencies. Level: Low.",
+          "match": "Risk \\(Low\\): The build is slow\\. Impact: releases take longer\\. Mitigation: cache dependencies"
+        }
+      ]
+    },
+    {
+      "id": "meeting-skills",
+      "name": "Meeting Notes Mastery",
+      "icon": "📝",
+      "summary": "Turn meeting talk into clean action items (owner, task, due), decision lists and short minutes, without inventing anything that was not said.",
+      "learns": [
+        "Action items: - Owner: task (due)",
+        "Decisions only, no chatter",
+        "Short minutes: title, attendees, decision, action"
+      ],
+      "generators": [
+        "meeting_actions",
+        "meeting_actions",
+        "meeting_decisions",
+        "meeting_minutes",
+        "meeting_actions_notes",
+        "meeting_actions_notes",
+        "meeting_actions_notes"
+      ],
+      "rows": 600,
+      "data": [],
+      "sources": [
+        {
+          "label": "Generated by code from templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside data."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Extract the action items as \"- Owner: task (due)\" lines from this meeting transcript:\nGina said: \"I will send the minutes by Friday.\"\nThanks all.\nHugo said: \"I will fix the login bug by Monday.\"",
+          "match": "(?=.*- Gina: send the minutes \\(Friday\\))(?=.*- Hugo: fix the login bug \\(Monday\\))"
+        },
+        {
+          "prompt": "List only the decisions from these notes, one bullet each:\nWho wants coffee?\nDecision: We will ship on Thursday.\nDecision: Standup moves to 9:30.",
+          "match": "(?=.*- We will ship on Thursday)(?=.*- Standup moves to 9:30)(?=.*^(?!.*coffee))"
+        },
+        {
+          "prompt": "Write short minutes. Title: Retro. Attendees: Ana, Ben. Decision: Security review comes before release. Action: Carla to share the test results by Friday.",
+          "match": "(?=.*\\*\\*Retro\\*\\*)(?=.*Attendees: Ana, Ben)(?=.*Decision: Security review comes before release)(?=.*Action: Carla will share the test results by Friday)"
+        },
+        {
+          "prompt": "Extract the action items as \"- Owner: task (due)\" lines from this meeting transcript:\nOkay, that is all.\nIris said: \"I will update the roadmap by tomorrow.\"",
+          "match": "- Iris: update the roadmap \\(tomorrow\\)"
+        },
+        {
+          "prompt": "Extract the action items as \"- Owner: task (due)\" lines from this meeting transcript:\nJun said: \"I will book the demo room by tomorrow.\"\nGood point.\nKarla said: \"I will review the merge request by Monday.\"\nLuis said: \"I will share the test results by end of day.\"",
+          "match": "(?=.*- Jun: book the demo room \\(tomorrow\\))(?=.*- Karla: review the merge request \\(Monday\\))(?=.*- Luis: share the test results \\(end of day\\))"
+        },
+        {
+          "prompt": "Extract the action items as \"- Owner: task (due)\" lines from this meeting transcript:\nLet us keep it short.\nGina said: \"I will fix the login bug by next Wednesday.\"",
+          "match": "- Gina: fix the login bug \\(next Wednesday\\)"
+        },
+        {
+          "prompt": "List only the decisions from these notes, one bullet each:\nDecision: Security review comes before release.\nSomeone asked about lunch.\nDecision: Standup moves to 9:30.",
+          "match": "(?=.*- Security review comes before release)(?=.*- Standup moves to 9:30)(?=.*^(?!.*lunch))"
+        },
+        {
+          "prompt": "List only the decisions from these notes, one bullet each:\nWho has the keys?\nDecision: The old report format is retired.",
+          "match": "(?=.*- The old report format is retired)(?=.*^(?!.*keys))"
+        },
+        {
+          "prompt": "Write short minutes. Title: Release review. Attendees: Gina, Hugo, Iris. Decision: We will ship on Thursday. Action: Jun to update the roadmap by Friday.",
+          "match": "(?=.*\\*\\*Release review\\*\\*)(?=.*Attendees: Gina, Hugo, Iris)(?=.*Decision: We will ship on Thursday)(?=.*Action: Jun will update the roadmap by Friday)"
+        },
+        {
+          "prompt": "Write short minutes. Title: Weekly touchpoint. Attendees: Karla, Luis. Decision: Standup moves to 9:30. Action: Hugo to fix the login bug by Monday.",
+          "match": "(?=.*\\*\\*Weekly touchpoint\\*\\*)(?=.*Attendees: Karla, Luis)(?=.*Decision: Standup moves to 9:30)(?=.*Action: Hugo will fix the login bug by Monday)"
+        }
+      ]
+    },
+    {
+      "id": "architect-ai",
+      "name": "Software Architect AI",
+      "icon": "🏛️",
+      "summary": "Review designs instead of approving them blindly: weigh trade-offs with numbers, find dependency cycles and single points of failure, flag security risks, and write ADRs, API schemas and Mermaid diagrams.",
+      "learns": [
+        "Architecture decision records (ADRs) in a fixed, reviewable format",
+        "Weighted trade-off scoring with a clear winner",
+        "Dependency cycles and the service everything depends on (single point of failure)",
+        "Security risks in a design, ranked by severity",
+        "Failure scenarios: timeouts, retries, circuit breakers, fallbacks",
+        "JSON schemas for API contracts and Mermaid flowcharts"
+      ],
+      "generators": [
+        "arch_adr",
+        "arch_adr",
+        "arch_tradeoff",
+        "arch_tradeoff",
+        "arch_tradeoff",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_spof",
+        "arch_spof",
+        "arch_mermaid",
+        "arch_mermaid",
+        "arch_security",
+        "arch_security",
+        "arch_security",
+        "arch_api",
+        "arch_api",
+        "arch_failure",
+        "arch_failure",
+        "arch_adr",
+        "arch_adr",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_security",
+        "arch_security",
+        "arch_security",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_cycle",
+        "arch_spof",
+        "arch_spof"
+      ],
+      "rows": 1300,
+      "data": [],
+      "sources": [
+        {
+          "label": "Generated by code from rules and templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside text is copied."
+        },
+        {
+          "label": "Michael Nygard, Documenting Architecture Decisions (the ADR format)",
+          "license": "Idea only: format is not copyrightable",
+          "url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+          "note": "Rows are computed; no text is copied. Add your own approved ADRs in Your own training."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Weighted decision. Weights: cost 3, latency 2. Scores (1-5): REST: cost 4, latency 3; Queue: cost 2, latency 5. Return JSON only with terms (each option's weighted sum written out as weight*score+..., in the order of the weights), scores (the totals) and winner.",
+          "match": "(?=.*\"REST\":\\s*\"3\\*4\\+2\\*3\")(?=.*\"Queue\":\\s*\"3\\*2\\+2\\*5\")(?=.*\"REST\":\\s*18\\b)(?=.*\"Queue\":\\s*16\\b)(?=.*\"winner\":\\s*\"REST\")"
+        },
+        {
+          "prompt": "Service calls: Web calls API; API calls Auth; Auth calls Billing; Billing calls Auth. Return JSON only with has_cycle (true or false) and cycle (service names starting from the alphabetically first one in the loop, or an empty list).",
+          "match": "(?=.*\"has_cycle\":\\s*true)(?=.*\"cycle\":\\s*\\[\"Auth\",\\s*\"Billing\"\\])"
+        },
+        {
+          "prompt": "Service calls: Web calls API; API calls Search; API calls Cache. Return JSON only with has_cycle (true or false) and cycle (service names starting from the alphabetically first one in the loop, or an empty list).",
+          "match": "(?=.*\"has_cycle\":\\s*false)(?=.*\"cycle\":\\s*\\[\\s*\\])"
+        },
+        {
+          "prompt": "Dependencies: Web depends on API; Orders depends on API; Search depends on API; Web depends on Cache; Orders depends on Cache. Which service is the single point of failure candidate (the one most others depend on)? Return JSON only with counts (how many services depend on each service that has dependents, highest first), service and dependents.",
+          "match": "(?=.*\"API\":\\s*3)(?=.*\"Cache\":\\s*2)(?=.*\"service\":\\s*\"API\")(?=.*\"dependents\":\\s*3\\b)"
+        },
+        {
+          "prompt": "Draw a Mermaid flowchart (left to right) for: Web calls API; API calls Cache. Return only the diagram.",
+          "match": "(?=.*graph LR)(?=.*Web\\s*-->\\s*API)(?=.*API\\s*-->\\s*Cache)"
+        },
+        {
+          "prompt": "Review this design for security risks. Design notes: the API has no rate limiting; secrets are committed in the repository. Answer as one bullet per risk: \"- [Severity] finding\".",
+          "match": "(?=.*\\[High\\][^\\n]*rate)(?=.*\\[Critical\\][^\\n]*(rotate|secret))"
+        },
+        {
+          "prompt": "Write an ADR. Title: Use a CDN for static files. Status: Accepted. Context: pages load slowly for users abroad. Options considered: Serve from the app server; A CDN. Decision: A CDN. Positive consequence: pages load faster worldwide. Negative consequence: cache invalidation needs care.",
+          "match": "(?=.*# ADR: Use a CDN for static files)(?=.*\\*\\*Status:\\*\\* Accepted)(?=.*Positive: Pages load faster worldwide)(?=.*Negative: Cache invalidation needs care)"
+        },
+        {
+          "prompt": "Write the JSON schema for the Order request body. Fields (name:type[:required]): id:integer:required, amount:number, note:string. Return JSON only.",
+          "match": "(?=.*\"required\":\\s*\\[\"id\"\\])(?=.*\"amount\":\\s*\\{\\s*\"type\":\\s*\"number\")"
+        },
+        {
+          "prompt": "Web calls Billing synchronously. It has no timeout, no retries and no circuit breaker. What happens when Billing is down, and what should be added? Answer in two short sentences.",
+          "match": "(?=.*timeout)(?=.*retries)(?=.*circuit breaker)"
+        },
+        {
+          "prompt": "Review this design for security risks. Design notes: services talk over plain HTTP inside the network; user input is placed directly in SQL; logs contain full request bodies. Answer as one bullet per risk: \"- [Severity] finding\".",
+          "match": "(?=.*\\[Medium\\][^\\n]*TLS)(?=.*\\[Critical\\][^\\n]*(parameteri|injection))(?=.*\\[Medium\\][^\\n]*(redact|logs))"
+        }
+      ]
+    },
+    {
+      "id": "code-review-ai",
+      "name": "Senior Code Reviewer AI",
+      "icon": "🔍",
+      "summary": "Review a change like a senior engineer: find the bug, name the file and line, explain why it matters and give the fix; say \"no blocking issues\" when there are none; classify and format review comments and judge their severity.",
+      "learns": [
+        "Bug patterns in JS, TS, React, Redux and Python: missing await, stale hook dependencies, state mutation, SQL injection, hard-coded secrets, off-by-one, unhandled promises, race conditions, missing keys, null access",
+        "Findings with `file:line`, severity and an actionable fix",
+        "Not inventing problems: clean code gets \"No blocking issues\"",
+        "Review comment categories and severity (Blocker, Major, Minor)",
+        "Real review comments from AACR-Bench (optional download, Apache-2.0)"
+      ],
+      "generators": [
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_snippet",
+        "review_classify",
+        "review_classify",
+        "review_format",
+        "review_format",
+        "review_severity",
+        "review_severity"
+      ],
+      "rows": 1400,
+      "data": [
+        "aacr-bench"
+      ],
+      "sources": [
+        {
+          "label": "Alibaba AACR-Bench: real pull-request review comments (categories and severity wording)",
+          "license": "Apache-2.0",
+          "url": "https://github.com/alibaba/aacr-bench",
+          "note": "Optional download of positive_samples.json (1.1 MB). Only human-written comments in English are used, for classifying and formatting findings. The data has no code diffs, so bug-finding rows are computed by Tulai, not taken from it."
+        },
+        {
+          "label": "Generated by code from rules and templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside text is copied."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Review this change in `src/api/tickets.ts` (each line starts with its line number):\n```ts\n20 | async function showTicket(id: string) {\n21 |   const ticket = getTicket(id);\n22 |   console.log(ticket.name);\n23 | }\n```",
+          "match": "(?=.*src/api/tickets\\.ts:21)(?=.*await)"
+        },
+        {
+          "prompt": "Review this change in `server/db/users.js` (each line starts with its line number):\n```js\n40 | const rows = db.query(\"SELECT * FROM users WHERE name = '\" + name + \"'\");\n```",
+          "match": "(?=.*server/db/users\\.js:40)(?=.*Blocker)(?=.*inject|parameteri)"
+        },
+        {
+          "prompt": "Review this change in `app/screens/Cart.tsx` (each line starts with its line number):\n```tsx\n12 | useEffect(() => {\n13 |   syncCart(cartId);\n14 | }, [cartId]);\n```",
+          "match": "No blocking issues"
+        },
+        {
+          "prompt": "Review this change in `lib/stats.js` (each line starts with its line number):\n```js\n12 | for (let i = 0; i <= items.length; i++) {\n13 |   total += items[i].price;\n14 | }\n```",
+          "match": "(?=.*lib/stats\\.js:12)(?=.*i < items\\.length|off-by-one|past the end)"
+        },
+        {
+          "prompt": "Review this change in `src/hooks/useCart.ts` (each line starts with its line number):\n```tsx\n7 | useEffect(() => {\n8 |   loadOrders(orderId);\n9 | }, []);\n```",
+          "match": "(?=.*useCart\\.ts:9)(?=.*orderId)"
+        },
+        {
+          "prompt": "Review this change in `src/store/cartSlice.ts` (each line starts with its line number):\n```ts\n30 | function reducer(state, action) {\n31 |   state.items.push(action.payload);\n32 |   return state;\n33 | }\n```",
+          "match": "(?=.*cartSlice\\.ts:31)(?=.*mutat)"
+        },
+        {
+          "prompt": "Classify this code review comment as exactly one of: Code Defect, Maintainability and Readability, Performance, Security Vulnerability.\nComment: The password is written to the debug log in clear text.",
+          "match": "Security Vulnerability"
+        },
+        {
+          "prompt": "Format this review finding as one line \"`file:line` [Category] comment\". File: src/api/users.ts. Lines: 88-91. Category: Performance. Comment: Move this query out of the loop.",
+          "match": "`src/api/users\\.ts:88-91` \\[Performance\\] Move this query out of the loop"
+        },
+        {
+          "prompt": "Severity for this review finding: a typo in a log message. Choose Blocker, Major or Minor and give one short reason.",
+          "match": "^\\W*Minor"
+        },
+        {
+          "prompt": "Review this change in `src/api/orders.ts` (each line starts with its line number):\n```js\n3 | fetch(url).then((r) => r.json()).then(showOrder);\n```",
+          "match": "(?=.*src/api/orders\\.ts:3)(?=.*catch)"
+        }
+      ]
+    },
+    {
+      "id": "qa-test-ai",
+      "name": "QA and Test Engineering AI",
+      "icon": "🧪",
+      "summary": "Think like a test engineer: boundary values and edge cases, test case names from a spec, failure analysis from a log line, coverage against a threshold, test ordering by failure history, and an issue register row ready for Excel.",
+      "learns": [
+        "Boundary value tests with expected results",
+        "Edge cases per kind of input (text, email, date, upload, list)",
+        "Failure analysis: category, likely cause and next step from a test log line",
+        "Coverage percent, PASS or FAIL and lines short of the threshold",
+        "Which tests to run first from recent failure history (test prioritization)",
+        "Issue register rows: ID, title, steps, expected, actual, severity (paste into Excel)",
+        "Real test-review requests from the Zenodo \"How Developers Review Tests\" data (optional)"
+      ],
+      "generators": [
+        "qa_boundary",
+        "qa_boundary",
+        "qa_edge",
+        "qa_edge",
+        "qa_failure",
+        "qa_failure",
+        "qa_failure",
+        "qa_coverage",
+        "qa_coverage",
+        "qa_coverage",
+        "qa_register",
+        "qa_register",
+        "qa_prioritize",
+        "qa_prioritize",
+        "qa_cases",
+        "qa_cases",
+        "qa_review_class",
+        "qa_coverage",
+        "qa_coverage",
+        "qa_failure",
+        "qa_failure",
+        "qa_edge",
+        "qa_edge"
+      ],
+      "rows": 1400,
+      "data": [
+        "test-reviews"
+      ],
+      "sources": [
+        {
+          "label": "How Developers Review Tests in GitHub? (330 test code reviews)",
+          "license": "CC BY 4.0",
+          "url": "https://zenodo.org/records/6792932",
+          "note": "Optional download of the CSV (227 KB). Used only to classify what a reviewer asks for on a test change (one clear category per comment)."
+        },
+        {
+          "label": "Google and Rails CI testing datasets (elbaum/CI-Datasets)",
+          "license": "No license declared",
+          "url": "https://github.com/elbaum/CI-Datasets",
+          "note": "NOT downloaded: the archives are 160 MB and the author declared no license. The pack teaches the same skill (test prioritization from failure history) with computed examples instead."
+        },
+        {
+          "label": "Generated by code from rules and templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside text is copied."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "The field \"discount percent\" accepts whole numbers from 5 to 60 inclusive. List the boundary value tests with the expected result.",
+          "match": "(?=.*\\b4\\b[^\\n]*reject)(?=.*\\b5\\b[^\\n]*accept)(?=.*\\b6\\b[^\\n]*accept)(?=.*\\b59\\b[^\\n]*accept)(?=.*\\b60\\b[^\\n]*accept)(?=.*\\b61\\b[^\\n]*reject)"
+        },
+        {
+          "prompt": "Coverage report: 612 of 900 lines covered. The required threshold is 75%. Return JSON only with covered, total, hundreds (total divided by 100), needed (threshold percent times hundreds), coverage_percent (one decimal), status (PASS or FAIL) and lines_short (needed minus covered, 0 if it passes).",
+          "match": "(?=.*\"covered\":\\s*612\\b)(?=.*\"total\":\\s*900\\b)(?=.*\"hundreds\":\\s*9\\b)(?=.*\"needed\":\\s*675\\b)(?=.*\"coverage_percent\":\\s*68(\\.0)?\\b)(?=.*\"status\":\\s*\"FAIL\")(?=.*\"lines_short\":\\s*63\\b)"
+        },
+        {
+          "prompt": "Coverage report: 850 of 1000 lines covered. The required threshold is 80%. Return JSON only with covered, total, hundreds (total divided by 100), needed (threshold percent times hundreds), coverage_percent (one decimal), status (PASS or FAIL) and lines_short (needed minus covered, 0 if it passes).",
+          "match": "(?=.*\"covered\":\\s*850\\b)(?=.*\"total\":\\s*1000\\b)(?=.*\"hundreds\":\\s*10\\b)(?=.*\"needed\":\\s*800\\b)(?=.*\"coverage_percent\":\\s*85(\\.0)?\\b)(?=.*\"status\":\\s*\"PASS\")(?=.*\"lines_short\":\\s*0\\b)"
+        },
+        {
+          "prompt": "Test checkout.spec failed with: connect ECONNREFUSED 127.0.0.1:5432\nReturn JSON only with category (one of: code defect, timing, assertion, environment, ui locator or snapshot), likely_cause and next_step.",
+          "match": "\"category\":\\s*\"environment\""
+        },
+        {
+          "prompt": "Test sync.spec failed with: Error: Timeout - Async callback was not invoked within the 5000 ms timeout\nReturn JSON only with category (one of: code defect, timing, assertion, environment, ui locator or snapshot), likely_cause and next_step.",
+          "match": "\"category\":\\s*\"timing\""
+        },
+        {
+          "prompt": "Test history, last 6 runs (P pass, F fail): login_test PFPPPP; cart_test FFPFPP; search_test PPPPPP; sync_test PPFPFP. Return JSON only with failures (the number of F per test) and run_first (the tests ordered by failures, highest first).",
+          "match": "(?=.*\"login_test\":\\s*1)(?=.*\"cart_test\":\\s*3)(?=.*\"search_test\":\\s*0)(?=.*\"sync_test\":\\s*2)(?=.*\"run_first\":\\s*\\[\"cart_test\",\\s*\"sync_test\",\\s*\"login_test\",\\s*\"search_test\"\\])"
+        },
+        {
+          "prompt": "Write an issue register row (Markdown table with the header). ID: BUG-077. Title: Search ignores accents. Steps: Open the app; Press Export. Expected: The correct value is shown. Actual: Instead a wrong total is shown. Impact: a wrong total is shown. Severity rule: crash or data loss = Critical, wrong result or broken action = Major, cosmetic = Minor.",
+          "match": "(?=.*\\| ID \\|)(?=.*BUG-077)(?=.*1\\. Open the app\\.)(?=.*2\\. Press Export\\.)(?=.*\\| Major \\|)"
+        },
+        {
+          "prompt": "Give five edge cases to test for a phone number field.",
+          "match": "(?=.*(empty|blank))(?=.*(letters|invalid|spaces|length|country|plus|symbol))(?=.*\\n- )"
+        },
+        {
+          "prompt": "Write unit test case names for `isEligible(score)`, which returns true when score is at least 50. Use bullets.",
+          "match": "(?=.*isEligible returns true when score is 50)(?=.*isEligible returns false when score is 49)"
+        },
+        {
+          "prompt": "A reviewer commented on a pull request that changes tests. Classify the request as exactly one of: TestCase (add a test case), TestMethod, ImproveTest, RefactorTest, FixTest.\nComment: Can you also test what happens with a negative amount?",
+          "match": "TestCase"
+        }
+      ]
+    },
+    {
+      "id": "frontend-ai",
+      "name": "Frontend Specialist AI",
+      "icon": "⚛️",
+      "summary": "React and React Native done carefully: typed component props, Redux Toolkit slices, accessibility fixes, performance and cross-platform facts. Exact WCAG contrast ratios are computed by your code (a model should not do that arithmetic). For your own stack, add your approved components and corrected code in Your own training.",
+      "learns": [
+        "Typed component props (TypeScript interfaces)",
+        "Redux Toolkit slices with typed payloads",
+        "Accessibility fixes in React and React Native (labels, roles, alt text)",
+        "List performance, memoization, async error handling",
+        "React Native equivalents of web elements and APIs; avoiding regressions in shared components"
+      ],
+      "generators": [
+        "fe_props",
+        "fe_props",
+        "fe_props",
+        "fe_slice",
+        "fe_slice",
+        "fe_slice",
+        "fe_a11y",
+        "fe_a11y",
+        "fe_a11y",
+        "fe_a11y",
+        "fe_fact",
+        "fe_fact",
+        "fe_fact",
+        "fe_fact",
+        "fe_fact",
+        "fe_fact",
+        "fe_fact"
+      ],
+      "rows": 900,
+      "data": [],
+      "sources": [
+        {
+          "label": "Generated by code from rules and templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside text is copied."
+        },
+        {
+          "label": "WCAG 2.1 contrast formula (relative luminance)",
+          "license": "W3C: free to implement",
+          "url": "https://www.w3.org/TR/WCAG21/#contrast-minimum",
+          "note": "Ratios are computed with the official formula."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Write the typed props for a React Native Avatar component. Props (name: type, required or optional): title: string (required), count: number (optional), loading: boolean (optional). Return only the TypeScript interface.",
+          "match": "(?=.*interface AvatarProps)(?=.*title: string;)(?=.*count\\?: number;)(?=.*loading\\?: boolean;)"
+        },
+        {
+          "prompt": "Write a Redux Toolkit slice named \"settings\" in TypeScript. State fields (name: type = initial): theme: string = 'light', compact: boolean = false. One reducer per field named setField that stores the payload. Return only the code.",
+          "match": "(?=.*createSlice)(?=.*name: 'settings')(?=.*setTheme\\(state, action: PayloadAction<string>\\))(?=.*state\\.compact = action\\.payload)(?=.*setTheme, setCompact)"
+        },
+        {
+          "prompt": "Find the accessibility problem and give the fixed JSX.\n```jsx\n<img src={logo} />\n```",
+          "match": "(?=.*alt)(?=.*(no alt|alt text))"
+        },
+        {
+          "prompt": "Find the accessibility problem and give the fixed JSX.\n```jsx\n<button onClick={handleSave}><Icon name=\"save\" /></button>\n```",
+          "match": "aria-label"
+        },
+        {
+          "prompt": "Which React Native component lets me show a long scrolling list of items efficiently?",
+          "match": "FlatList"
+        },
+        {
+          "prompt": "What replaces the CSS px unit in React Native styles?",
+          "match": "unitless|density|plain numbers|numbers"
+        },
+        {
+          "prompt": "Find the accessibility problem and give the fixed JSX.\n```jsx\n<TouchableOpacity onPress={openProfile}><Image source={photoUrl} /></TouchableOpacity>\n```",
+          "match": "(?=.*accessibilityLabel)(?=.*accessibilityRole)"
+        },
+        {
+          "prompt": "Write the typed props for a React Native Chip component. Props (name: type, required or optional): label: string (required), selected: boolean (optional), onPress: () => void (optional). Return only the TypeScript interface.",
+          "match": "(?=.*interface ChipProps)(?=.*label: string;)(?=.*selected\\?: boolean;)(?=.*onPress\\?: \\(\\) => void;)"
+        },
+        {
+          "prompt": "Write a Redux Toolkit slice named \"alerts\" in TypeScript. State fields (name: type = initial): count: number = 0, muted: boolean = false. One reducer per field named setField that stores the payload. Return only the code.",
+          "match": "(?=.*createSlice)(?=.*name: 'alerts')(?=.*setCount\\(state, action: PayloadAction<number>\\))(?=.*state\\.muted = action\\.payload)(?=.*setCount, setMuted)"
+        },
+        {
+          "prompt": "Find the accessibility problem and give the fixed JSX.\n```jsx\n<input type=\"email\" value={email} onChange={setEmail} />\n```",
+          "match": "<label"
+        }
+      ]
+    },
+    {
+      "id": "eng-productivity-ai",
+      "name": "Engineering Productivity & Reporting AI",
+      "icon": "📈",
+      "summary": "Correlate Jira, pull requests and CI: find stale tickets and unreviewed pull requests, spot the bottleneck stage, judge delivery risk per ticket, write the weekly engineering report, and never create a duplicate report for the same week (keeping a dated snapshot).",
+      "learns": [
+        "Stale tickets from dates and status (not Done and not updated for N days)",
+        "Pull requests that need attention (no reviews, open for 2 days or more)",
+        "Delivery risk per ticket from its pull request and CI state",
+        "The bottleneck stage from average days per stage",
+        "Weekly engineering report with a computed delivery risk (Low, Medium, High)",
+        "No duplicate reports: ISO week check and a dated snapshot"
+      ],
+      "generators": [
+        "eng_stale",
+        "eng_stale",
+        "eng_stale",
+        "eng_unreviewed",
+        "eng_unreviewed",
+        "eng_unreviewed",
+        "eng_correlate",
+        "eng_correlate",
+        "eng_correlate",
+        "eng_bottleneck",
+        "eng_bottleneck",
+        "eng_report",
+        "eng_report",
+        "eng_report",
+        "eng_dedupe",
+        "eng_dedupe",
+        "eng_dedupe",
+        "eng_stale",
+        "eng_stale",
+        "eng_stale",
+        "eng_stale",
+        "eng_stale",
+        "eng_report",
+        "eng_report",
+        "eng_report",
+        "eng_report"
+      ],
+      "rows": 1400,
+      "data": [],
+      "sources": [
+        {
+          "label": "Generated by code from rules and templates in scripts/pack-skills.py",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "No outside text is copied."
+        },
+        {
+          "label": "Your own verified reports, Jira exports and pull-request histories",
+          "license": "Yours",
+          "url": "",
+          "note": "Add them in Your own training (examples and checks) so the pack learns your real findings."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "A ticket is stale if it is not Done and was last updated more than 14 days ago. Tickets: PAY-21 | In Progress | updated 19 days ago; PAY-22 | Done | updated 70 days ago; PAY-23 | In Review | updated 8 days ago; PAY-24 | Blocked | updated 29 days ago. Return JSON only with ages (days since the last update, for the tickets that are not Done) and stale (ticket keys, oldest update first).",
+          "match": "(?=.*\"PAY-21\":\\s*19)(?=.*\"PAY-23\":\\s*8)(?=.*\"PAY-24\":\\s*29)(?=.*\"stale\":\\s*\\[\"PAY-24\",\\s*\"PAY-21\"\\])"
+        },
+        {
+          "prompt": "Open pull requests: #301 open 5 days, 0 reviews; #302 open 1 days, 0 reviews; #303 open 4 days, 1 reviews; #304 open 2 days, 0 reviews. A pull request needs attention if it has 0 reviews and has been open 2 days or more. Return JSON only with waiting_days (days open, for the pull requests with 0 reviews) and needs_review (pull request numbers, longest waiting first).",
+          "match": "(?=.*\"#301\":\\s*5)(?=.*\"#302\":\\s*1)(?=.*\"#304\":\\s*2)(?=.*\"needs_review\":\\s*\\[\"#301\",\\s*\"#304\"\\])"
+        },
+        {
+          "prompt": "Delivery data: PAY-31: pull request open, CI failed; PAY-32: no pull request; PAY-33: pull request merged, CI passed; PAY-34: pull request merged, CI failed. Return JSON only mapping each ticket to one of: no PR yet, waiting for review, blocked by CI, CI not run, done, regression risk, done, CI unknown.",
+          "match": "(?=.*\"PAY-31\":\\s*\"blocked by CI\")(?=.*\"PAY-32\":\\s*\"no PR yet\")(?=.*\"PAY-33\":\\s*\"done\")(?=.*\"PAY-34\":\\s*\"regression risk\")"
+        },
+        {
+          "prompt": "Days each ticket spent per stage (To Do, In Progress, In Review, QA): T1 2/3/5/1; T2 4/2/6/0; T3 1/1/4/3. There are 3 tickets. Return JSON only with sums (total days per stage, in the order given), averages (sum divided by 3, one decimal), bottleneck (the stage with the highest average) and average_days (one decimal).",
+          "match": "(?=.*\"sums\":\\s*\\[\\s*7,\\s*6,\\s*15,\\s*4\\s*\\])(?=.*\"averages\":\\s*\\[\\s*2\\.3,\\s*2(\\.0)?,\\s*5(\\.0)?,\\s*1\\.3\\s*\\])(?=.*\"bottleneck\":\\s*\"In Review\")(?=.*\"average_days\":\\s*5(\\.0)?\\b)"
+        },
+        {
+          "prompt": "Weekly engineering report. Merged pull requests: 12. Average time to first review: 18 hours. CI: 46 of 50 runs passed. Stale tickets: 1. Delivery risk rule: High if CI pass rate is under 80% or 5 or more stale tickets, Medium if under 90% or 2 or more stale, else Low.",
+          "match": "(?=.*Merged pull requests: 12)(?=.*CI pass rate: 92%)(?=.*Delivery risk: Low)"
+        },
+        {
+          "prompt": "Weekly engineering report. Merged pull requests: 5. Average time to first review: 40 hours. CI: 30 of 50 runs passed. Stale tickets: 2. Delivery risk rule: High if CI pass rate is under 80% or 5 or more stale tickets, Medium if under 90% or 2 or more stale, else Low.",
+          "match": "(?=.*CI pass rate: 60%)(?=.*Delivery risk: High)"
+        },
+        {
+          "prompt": "Existing reports: eng-report-2026-W40, eng-report-2026-W41. Create the weekly engineering report for the week of 2026-10-05 (ISO week 2026-W41). Rule: never create a duplicate for the same ISO week, and always keep a dated snapshot.",
+          "match": "(?=.*already exists)(?=.*2026-W41)(?=.*not create a duplicate)"
+        },
+        {
+          "prompt": "Existing reports: eng-report-2026-W40. Create the weekly engineering report for the week of 2026-10-12 (ISO week 2026-W42). Rule: never create a duplicate for the same ISO week, and always keep a dated snapshot.",
+          "match": "(?=.*No report exists for 2026-W42)(?=.*snapshot-2026-W42\\.json)"
+        },
+        {
+          "prompt": "A ticket is stale if it is not Done and was last updated more than 14 days ago. Tickets: PAY-51 | Done | updated 62 days ago; PAY-52 | In Progress | updated 4 days ago. Return JSON only with ages (days since the last update, for the tickets that are not Done) and stale (ticket keys, oldest update first).",
+          "match": "(?=.*\"PAY-52\":\\s*4)(?=.*\"stale\":\\s*\\[\\s*\\])"
+        },
+        {
+          "prompt": "Delivery data: PAY-61: pull request open, CI passed; PAY-62: pull request open, no CI run; PAY-63: pull request merged, no CI run. Return JSON only mapping each ticket to one of: no PR yet, waiting for review, blocked by CI, CI not run, done, regression risk, done, CI unknown.",
+          "match": "(?=.*\"PAY-61\":\\s*\"waiting for review\")(?=.*\"PAY-62\":\\s*\"CI not run\")(?=.*\"PAY-63\":\\s*\"done, CI unknown\")"
+        }
+      ]
+    },
+    {
+      "id": "charts-reporting-ai",
+      "name": "Charts & Executive Reporting AI",
+      "icon": "📊",
+      "summary": "Turn engineering metrics into a chart spec your reporting UI can draw, plus evidence-based executive insights: line and bar chart specifications (Vega-Lite style) with verified calculations, the right chart for the data, executive summaries with a risk rule, and completion-rate maths. The model writes the specification; your React reporting code renders it.",
+      "learns": [
+        "Line and bar chart specs: title, inline data, mark and encoding (sorted bars, ordinal and quantitative axes)",
+        "Insights computed from the data: trend with change and percent, best period, average, largest share, total",
+        "Choosing the right chart (line, bar, pie, histogram, scatter, box, stacked bar)",
+        "Executive summary: Headline, Risk (rule-based) and Next step",
+        "Completion rates per sprint, average and weakest sprint",
+        "Real chart-choice examples from Text2Chart31 (optional download, MIT)"
+      ],
+      "generators": [
+        "chart_line",
+        "chart_line",
+        "chart_line",
+        "chart_bar",
+        "chart_bar",
+        "chart_choose",
+        "chart_choose",
+        "chart_summary",
+        "chart_summary",
+        "chart_rates",
+        "chart_rates",
+        "chart_type_real",
+        "chart_choose",
+        "chart_choose",
+        "chart_choose",
+        "chart_choose",
+        "chart_type_real",
+        "chart_type_real"
+      ],
+      "rows": 1400,
+      "data": [
+        "text2chart31"
+      ],
+      "sources": [
+        {
+          "label": "Text2Chart31 (9,705 chart-generation examples, 31 plot types; EMNLP 2024)",
+          "license": "MIT (repository)",
+          "url": "https://github.com/fatemehpesaran310/Text2Chart31",
+          "note": "Optional download of the training JSON (45 MB, pinned commit, checksum checked). Used to practise choosing a plot type from a request and a data excerpt. The Python plotting code in it is not used: your charts are drawn by your own reporting UI from a spec."
+        },
+        {
+          "label": "Chart-LLM (Vega-Lite chart dataset)",
+          "license": "MIT (repository), but its benchmark folders carry other licenses",
+          "url": "https://github.com/hyungkwonko/chart-llm",
+          "note": "NOT downloaded: the dataset mixes sub-sets with different licenses (nvBench, Data2Vis, ChartSeer, Vega-Lite examples) that need a review first. The pack teaches Vega-Lite style specifications with computed examples instead."
+        },
+        {
+          "label": "Chart2Text (chart-to-summary corpus)",
+          "license": "No license declared in the repository",
+          "url": "https://github.com/AlexandreManai/Chart2Text",
+          "note": "NOT downloaded: no license declared. The pack teaches trend and comparison summaries with computed, verified insights instead."
+        },
+        {
+          "label": "ChartQA (chart images with questions)",
+          "license": "GPL-3.0",
+          "url": "https://huggingface.co/datasets/HuggingFaceM4/ChartQA",
+          "note": "NOT used: it is image data for vision-language models and GPL-3.0; your local model is text-only. Charts are produced from specifications, not read from pictures."
+        },
+        {
+          "label": "Generated by code from the rules in scripts/pack-skills.py (verified calculations)",
+          "license": "Own work (this project)",
+          "url": "",
+          "note": "Add your real, verified reports as examples in Your own training."
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Series Sprint velocity by sprint: S1 20, S2 24, S3 22, S4 30. Return JSON only with spec (a line chart in Vega-Lite style: title, data.values, mark, encoding with x ordinal and y quantitative), calc (first, last, change, percent_change, sum and average, one decimal for percent_change and average) and insights (trend with first-to-last change and percent change, best sprint where higher is better, average to one decimal).",
+          "maxTokens": 700,
+          "match": "(?=.*\"mark\":\\s*\"line\")(?=.*\"first\":\\s*20\\b)(?=.*\"last\":\\s*30\\b)(?=.*\"change\":\\s*10\\b)(?=.*\"percent_change\":\\s*50.0)(?=.*\"sum\":\\s*96\\b)(?=.*Trend:\\ up\\ from\\ 20\\ to\\ 30\\ \\(\\+10,\\ \\+50\\.0%\\))(?=.*Best sprint: S4 \\(30\\))(?=.*Average: 24\\.0)"
+        },
+        {
+          "prompt": "Series Open bugs by week: W1 18, W2 15, W3 16, W4 11. Return JSON only with spec (a line chart in Vega-Lite style: title, data.values, mark, encoding with x ordinal and y quantitative), calc (first, last, change, percent_change, sum and average, one decimal for percent_change and average) and insights (trend with first-to-last change and percent change, best week where lower is better, average to one decimal).",
+          "maxTokens": 700,
+          "match": "(?=.*\"mark\":\\s*\"line\")(?=.*\"first\":\\s*18\\b)(?=.*\"last\":\\s*11\\b)(?=.*\"change\":\\s*-7\\b)(?=.*\"percent_change\":\\s*-38.9)(?=.*\"sum\":\\s*60\\b)(?=.*Trend:\\ down\\ from\\ 18\\ to\\ 11\\ \\(\\-7,\\ \\-38\\.9%\\))(?=.*Best week: W4 \\(11\\))(?=.*Average: 15\\.0)"
+        },
+        {
+          "prompt": "Count by status: To Do 8, In Progress 14, Done 20, Blocked 3. Return JSON only with spec (a bar chart in Vega-Lite style, bars sorted from largest to smallest) and insights (largest category with its share of the total, and the total).",
+          "maxTokens": 420,
+          "match": "(?=.*\"mark\":\\s*\"bar\")(?=.*\"status\":\\s*\"Done\"[\\s\\S]*\"status\":\\s*\"In Progress\"[\\s\\S]*\"status\":\\s*\"To Do\"[\\s\\S]*\"status\":\\s*\"Blocked\")(?=.*Largest: Done \\(20 of 45, 44.4%\\))(?=.*Total: 45)"
+        },
+        {
+          "prompt": "Which chart type fits? Choose from: line, bar, pie, histogram, scatter, box, stack. Data: weekly deployment frequency for the last 20 weeks.",
+          "match": "^\\W*line\\b"
+        },
+        {
+          "prompt": "Which chart type fits? Choose from: line, bar, pie, histogram, scatter, box, stack. Data: code coverage versus bug count for 40 services.",
+          "match": "^\\W*scatter\\b"
+        },
+        {
+          "prompt": "Which chart type fits? Choose from: line, bar, pie, histogram, scatter, box, stack. Data: distribution of ticket resolution times across 500 tickets.",
+          "match": "^\\W*histogram\\b"
+        },
+        {
+          "prompt": "Create an executive summary (Working, Headline, Risk, Next step) for Sprint velocity (higher is better): S1 30, S2 28, S3 25, S4 22, S5 20. Risk rule: At risk if the result is 15% or more worse than the start, Watch if 5% or more worse, else On track.",
+          "maxTokens": 300,
+          "match": "(?=.*Working: first 30, last 20, change -10, percent change -33\\.3%)(?=.*Headline: Sprint velocity is falling 33\\.3% over 5 sprints \\(from 30 to 20\\))(?=.*Risk: At risk)(?=.*Next step: Review the cause)"
+        },
+        {
+          "prompt": "Planned vs completed story points per sprint: S1 24/30, S2 28/28, S3 15/25. There are 3 sprints. Return JSON only with completion_rates (percent per sprint, whole numbers), sum (of the rates), average_rate (sum divided by 3, one decimal) and weakest (sprint with the lowest rate).",
+          "maxTokens": 300,
+          "match": "(?=.*\"completion_rates\":\\s*\\[\\s*80,\\s*100,\\s*60\\s*\\])(?=.*\"sum\":\\s*240\\b)(?=.*\"average_rate\":\\s*80(\\.0)?\\b)(?=.*\"weakest\":\\s*\"S3\")"
+        },
+        {
+          "prompt": "Series CI pass rate in percent by week: W1 90, W2 92, W3 91, W4 95, W5 93. Return JSON only with spec (a line chart in Vega-Lite style: title, data.values, mark, encoding with x ordinal and y quantitative), calc (first, last, change, percent_change, sum and average, one decimal for percent_change and average) and insights (trend with first-to-last change and percent change, best week where higher is better, average to one decimal).",
+          "maxTokens": 700,
+          "match": "(?=.*\"mark\":\\s*\"line\")(?=.*\"first\":\\s*90\\b)(?=.*\"last\":\\s*93\\b)(?=.*\"change\":\\s*3\\b)(?=.*\"percent_change\":\\s*3.3)(?=.*\"sum\":\\s*461\\b)(?=.*Trend:\\ up\\ from\\ 90\\ to\\ 93\\ \\(\\+3,\\ \\+3\\.3%\\))(?=.*Best week: W4 \\(95\\))(?=.*Average: 92\\.2)"
+        },
+        {
+          "prompt": "Which chart type fits? Choose from: line, bar, pie, histogram, scatter, box, stack. Data: review time per repository, showing the median and outliers for each.",
+          "match": "^\\W*box\\b"
+        }
+      ]
+    },
+    {
+      "id": "coding-ai",
+      "name": "Coding AI",
+      "icon": "💻",
+      "summary": "Write, change, fix and test code like a careful engineer: implement functions from requirements, modify existing code without breaking it, fix bugs from a failing test, write unit tests that really catch bugs, and propose small patches for real repository issues. Trained on five verified open datasets; checked by running the code.",
+      "learns": [
+        "Implement a function from a requirement (checked by running unit tests)",
+        "Modify existing code without breaking its behaviour",
+        "Diagnose a failing test and fix the bug",
+        "Write unit tests that pass on correct code and catch a broken one",
+        "Make the same change consistently across several files",
+        "Write a minimal patch for a real GitHub issue (SWE-bench style)"
+      ],
+      "generators": [
+        "code_rename",
+        "code_review_bug",
+        "code_fix_test",
+        "code_impl",
+        "code_impl",
+        "code_write_tests"
+      ],
+      "codeData": true,
+      "rows": 1190,
+      "data": [
+        "opencodeinstruct",
+        "magicoder-oss",
+        "magicoder-evol",
+        "codealpaca",
+        "swe-bench"
+      ],
+      "sources": [
+        {
+          "name": "NVIDIA OpenCodeInstruct",
+          "url": "https://huggingface.co/datasets/nvidia/OpenCodeInstruct",
+          "license": "CC-BY-4.0"
+        },
+        {
+          "name": "Magicoder OSS-Instruct 75K",
+          "url": "https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K",
+          "license": "MIT (generated by gpt-3.5-turbo)"
+        },
+        {
+          "name": "Magicoder Evol-Instruct 110K",
+          "url": "https://huggingface.co/datasets/ise-uiuc/Magicoder-Evol-Instruct-110K",
+          "license": "Apache-2.0"
+        },
+        {
+          "name": "CodeAlpaca 20K",
+          "url": "https://huggingface.co/datasets/sahil2801/CodeAlpaca-20k",
+          "license": "CC-BY-4.0"
+        },
+        {
+          "name": "SWE-bench (train split)",
+          "url": "https://github.com/SWE-bench/SWE-bench",
+          "license": "MIT; code under each repository's license"
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Write a Python function `is_palindrome(s)` that returns True when s reads the same forwards and backwards, ignoring letter case and every character that is not a letter or a digit. Reply with one python code block.",
+          "exec": {
+            "tests": [
+              "assert is_palindrome('A man, a plan, a canal: Panama')",
+              "assert not is_palindrome('race a car')",
+              "assert is_palindrome('')",
+              "assert is_palindrome('No 1on')"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Python function `merge_intervals(intervals)` that takes a list of [start, end] pairs (not sorted) and returns the merged, sorted list of pairs. Touching intervals like [1, 2] and [2, 3] merge. Reply with one python code block.",
+          "exec": {
+            "tests": [
+              "assert merge_intervals([[8, 10], [1, 3], [2, 6], [15, 18]]) == [[1, 6], [8, 10], [15, 18]]",
+              "assert merge_intervals([[1, 2], [2, 3]]) == [[1, 3]]",
+              "assert merge_intervals([]) == []"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Python function `run_length(s)` that compresses a string by writing each character followed by how many times it repeats in a row, e.g. 'aaabccdd' -> 'a3b1c2d2'. An empty string returns ''. Reply with one python code block.",
+          "exec": {
+            "tests": [
+              "assert run_length('aaabccdd') == 'a3b1c2d2'",
+              "assert run_length('') == ''",
+              "assert run_length('abc') == 'a1b1c1'",
+              "assert run_length('zzzzzzzzzzzz') == 'z12'"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Python function `second_largest(nums)` that returns the second largest DISTINCT value in a list of integers, or None when there is none. Reply with one python code block.",
+          "exec": {
+            "tests": [
+              "assert second_largest([4, 1, 4, 3]) == 3",
+              "assert second_largest([7, 7]) is None",
+              "assert second_largest([]) is None",
+              "assert second_largest([-2, -5, -1]) == -2"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "This function must return the average of a list of numbers, but it crashes on an empty list and gives wrong results because of integer division:\n\n```python\ndef average(xs):\n    return sum(xs) // len(xs)\n```\n\nFix it so an empty list returns 0.0. Reply with the fixed function in one python code block.",
+          "exec": {
+            "tests": [
+              "assert average([]) == 0.0",
+              "assert average([1, 2]) == 1.5",
+              "assert average([3]) == 3"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Change this function so it takes an optional `sep` argument (default ', ') and skips empty strings, without changing anything else:\n\n```python\ndef join_words(words):\n    return ', '.join(words)\n```\n\nReply with the changed function in one python code block.",
+          "exec": {
+            "tests": [
+              "assert join_words(['a', 'b']) == 'a, b'",
+              "assert join_words(['a', '', 'b'], sep='-') == 'a-b'",
+              "assert join_words([]) == ''"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write unit tests for this function as plain Python test functions (named test_..., using assert, no imports needed):\n\n```python\ndef clamp(x, lo, hi):\n    \"\"\"Return x limited to the range lo..hi (inclusive).\"\"\"\n```\n\nCover a value below the range, inside it, above it and exactly on both limits. Reply with one python code block containing only the tests.",
+          "exec": {
+            "mode": "tests",
+            "correct": "def clamp(x, lo, hi):\n    return max(lo, min(x, hi))\n",
+            "buggy": [
+              "def clamp(x, lo, hi):\n    return min(lo, max(x, hi))\n",
+              "def clamp(x, lo, hi):\n    return x if lo < x < hi else (lo if x < lo else x)\n"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "A test fails:\n\nassert add_days('2026-01-31', 1) == '2026-02-01'\nAssertionError: got '2026-01-32'\n\nThe function is:\n\n```python\ndef add_days(s, n):\n    y, m, d = s.split('-')\n    return f'{y}-{m}-{int(d) + n:02d}'\n```\n\nFix it using the datetime module so months and years roll over correctly. Reply with the fixed function in one python code block.",
+          "exec": {
+            "tests": [
+              "assert add_days('2026-01-31', 1) == '2026-02-01'",
+              "assert add_days('2026-12-31', 1) == '2027-01-01'",
+              "assert add_days('2024-02-28', 1) == '2024-02-29'",
+              "assert add_days('2026-03-10', -10) == '2026-02-28'"
+            ]
+          },
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Two files. utils.py:\n\n```python\ndef slugify(t):\n    return t.lower().replace(' ', '-')\n```\n\napp.py:\n\n```python\nfrom utils import slugify\n\ndef page_url(title):\n    return '/p/' + slugify(title)\n```\n\nRename the function slugify to make_slug everywhere. Show both files in full, each in its own code block, and change nothing else.",
+          "match": "(?=.*def make_slug\\(t\\))(?=.*from utils import make_slug)(?=.*make_slug\\(title\\))(?!.*slugify)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Review this Python change and name the bug in one sentence, then give the fixed line:\n\n```python\ndef is_admin(user):\n    return user.role == 'admin' or 'owner'\n```",
+          "match": "(?=.*(always (true|truthy)|non-empty string|truthy|always returns? true))(?=.*(in \\(['\"]admin['\"], ['\"]owner['\"]\\)|in \\[['\"]admin['\"], ['\"]owner['\"]\\]|in \\{['\"]admin['\"], ['\"]owner['\"]\\}|== ['\"]owner['\"]))",
+          "maxTokens": 900
+        }
+      ],
+      "practiceRows": 260
+    },
+    {
+      "id": "call-assistant-ai",
+      "name": "Call Assistant AI",
+      "icon": "📞",
+      "summary": "Help you live in calls and meetings, like a call assistant: answer a question from what was already said in the call, and when it was not said, offer an option and say you will confirm instead of inventing facts. Also coaches you in mock calls with short, specific feedback.",
+      "learns": [
+        "Answer a live question from facts said earlier in the call",
+        "Never invent: offer an option and say it will be confirmed",
+        "Short, natural answers you can say out loud",
+        "Mock-call feedback: good, improve, better phrasing"
+      ],
+      "generators": [
+        "call_answer",
+        "call_answer",
+        "call_answer",
+        "call_unknown",
+        "call_unknown",
+        "mock_feedback",
+        "call_general",
+        "call_general",
+        "call_general"
+      ],
+      "rows": 700,
+      "data": [],
+      "sources": [],
+      "checks": [
+        {
+          "prompt": "Conversation so far:\nRhea: Quick recap, the go-live date is April 3.\nMarco: And the vendor sends the keys on Monday.\n\nQuestion to answer now: \"When do we go live?\"\nWhat should I say?",
+          "match": "April 3",
+          "not": "\\b(?:march|may|june)\\b"
+        },
+        {
+          "prompt": "Conversation so far:\nAna: The trial covers 12 stores.\nBen: Billing moves to the new system later.\n\nQuestion to answer now: \"How many stores are in the trial?\"\nWhat should I say?",
+          "match": "\\b12\\b"
+        },
+        {
+          "prompt": "Conversation so far:\nCarla: The dashboard refreshes every 15 minutes.\n\nQuestion to answer now: \"How often does the dashboard refresh?\"\nWhat should I say?",
+          "match": "15 minutes"
+        },
+        {
+          "prompt": "Conversation so far:\nDante: The mobile app is built with React Native.\n\nQuestion to answer now: \"What is the monthly license cost?\"\nWhat should I say?",
+          "match": "(confirm|check|not (?:decided|sure|confirmed)|get back)",
+          "not": "\\$\\s?\\d|\\d+\\s*(?:dollars|pesos|php|usd)"
+        },
+        {
+          "prompt": "Conversation so far:\nElena: Training sessions happen on Thursdays.\n\nQuestion to answer now: \"Who signs off on the security review?\"\nWhat should I say?",
+          "match": "(confirm|check|not (?:decided|sure|confirmed)|get back|find out)"
+        },
+        {
+          "prompt": "Conversation so far:\nMarco: Reports are exported as PDF and Excel.\nRhea: Only managers can export.\n\nQuestion to answer now: \"Who can export the reports?\"\nWhat should I say?",
+          "match": "manager"
+        },
+        {
+          "prompt": "Conversation so far:\nBen: The API limit is 100 requests per minute.\n\nQuestion to answer now: \"What is the rate limit on the API?\"\nWhat should I say?",
+          "match": "100 requests per minute|100 per minute"
+        },
+        {
+          "prompt": "Conversation so far:\nAna: We agreed the backup runs at 2 AM.\n\nQuestion to answer now: \"How long do we keep the backups?\"\nWhat should I say?",
+          "match": "(confirm|check|not (?:decided|sure|confirmed)|get back|find out)",
+          "not": "\\b\\d+\\s*(?:days|weeks|months|years)\\b"
+        },
+        {
+          "prompt": "Give feedback on this practice answer in 3 short bullets: what was good, what to improve, and one better phrasing.\nQuestion: How do you prioritise bugs?\nAnswer: By severity.",
+          "match": "(?=.*-.*)(?=.*(?:example|impact|user|customer|specific|explain))"
+        },
+        {
+          "prompt": "Conversation so far:\nCarla: Single sign-on uses the company Azure account.\n\nQuestion to answer now: \"How do users sign in?\"\nWhat should I say?",
+          "match": "(single sign-on|sso|azure)"
+        }
+      ]
+    },
+    {
+      "id": "springboot-ai",
+      "name": "Spring Boot AI",
+      "icon": "🍃",
+      "summary": "Build Spring Boot 4.x backends the 4.1 way: REST controllers, services, JPA entities and repositories, validation, ProblemDetail errors, SecurityFilterChain security, type-safe configuration, RestClient and tests with the new Spring Boot 4 test modules. Practice is compiled and tested on Spring Boot 4.1.1 before training.",
+      "learns": [
+        "REST controllers with records, ResponseEntity and validation",
+        "JPA entities, Spring Data repositories and transactions",
+        "Errors as ProblemDetail with @RestControllerAdvice",
+        "Security with a SecurityFilterChain bean",
+        "@ConfigurationProperties records",
+        "Tests with @WebMvcTest, @DataJpaTest and @MockitoBean (Spring Boot 4 packages)"
+      ],
+      "springData": true,
+      "rows": 900,
+      "data": [
+        "spring-boot-4-docs",
+        "spring-guides",
+        "fuleee-springboot"
+      ],
+      "sources": [
+        {
+          "name": "Spring Boot 4.1.1 documentation examples",
+          "url": "https://github.com/spring-projects/spring-boot/tree/v4.1.1",
+          "license": "Apache-2.0"
+        },
+        {
+          "name": "Spring Guides",
+          "url": "https://github.com/spring-guides",
+          "license": "Apache-2.0"
+        },
+        {
+          "name": "Spring Boot code completion (Fuleee)",
+          "url": "https://huggingface.co/datasets/Fuleee/springboot-code-completion-dataset",
+          "license": "README: academic/non-commercial only (used by your choice)"
+        }
+      ],
+      "checks": [
+        {
+          "prompt": "Write a Spring Boot 4 REST controller for products: GET /api/products returns a List<ProductDto> from a ProductService. Use constructor injection.",
+          "match": "(?=.*@RestController)(?=.*@GetMapping)(?=.*List<ProductDto>)(?=.*ProductController\\(\\s*(?:final\\s+)?ProductService)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Spring Boot 4 JPA entity Customer with a generated id and a unique email column.",
+          "match": "(?=.*@Entity)(?=.*@Id)(?=.*@GeneratedValue)(?=.*(?:unique\\s*=\\s*true|@UniqueConstraint))(?=.*jakarta\\.persistence)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Spring Data JPA repository for Customer (Long id) with a derived query that finds a customer by email, ignoring case, returning an Optional.",
+          "match": "(?=.*extends JpaRepository<Customer,\\s*Long>)(?=.*Optional<Customer>\\s+findByEmailIgnoreCase\\(String)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "In Spring Boot 4 tests, @MockBean was removed. What annotation replaces it for adding a Mockito mock to the Spring context, and which package is it in?",
+          "match": "(?=.*@?MockitoBean)(?=.*org\\.springframework\\.test\\.context\\.bean\\.override\\.mockito)",
+          "maxTokens": 300
+        },
+        {
+          "prompt": "In Spring Boot 4, which package do you import @WebMvcTest from?",
+          "match": "org\\.springframework\\.boot\\.webmvc\\.test\\.autoconfigure",
+          "maxTokens": 200
+        },
+        {
+          "prompt": "Write a Spring Boot 4 POST /api/signup endpoint that takes a SignupRequest record with a required email (valid email format) and a required name, and returns 400 when they are invalid.",
+          "match": "(?=.*@Valid)(?=.*@RequestBody)(?=.*@Email)(?=.*@NotBlank)(?=.*jakarta\\.validation)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Spring Boot 4 @RestControllerAdvice that returns a ProblemDetail with HTTP 409 Conflict when a DuplicateEmailException is thrown.",
+          "match": "(?=.*@RestControllerAdvice)(?=.*@ExceptionHandler\\(\\s*DuplicateEmailException\\.class)(?=.*ProblemDetail)(?=.*(?:CONFLICT|409))",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Spring Boot 4 SecurityFilterChain bean where /actuator/health is open to everyone, /admin/** needs the ADMIN role, and everything else needs login.",
+          "match": "(?=.*SecurityFilterChain)(?=.*requestMatchers\\(\\s*\"/actuator/health\"\\s*\\)\\.permitAll\\(\\))(?=.*requestMatchers\\(\\s*\"/admin/\\*\\*\"\\s*\\)\\.hasRole\\(\\s*\"ADMIN\"\\s*\\))(?=.*authenticated\\(\\))",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "Write a Spring Boot 4 @ConfigurationProperties record for the prefix \"payments.gateway\" with a url (String) and a timeout (java.time.Duration).",
+          "match": "(?=.*@ConfigurationProperties\\(\\s*(?:prefix\\s*=\\s*)?\"payments\\.gateway\"\\s*\\))(?=.*record\\s+\\w+\\()(?=.*Duration\\s+timeout)",
+          "maxTokens": 900
+        },
+        {
+          "prompt": "In Spring Boot 4, use RestClient to GET https://api.example.com/todos/1 and read the JSON body into a Todo record.",
+          "match": "(?=.*RestClient)(?=.*\\.get\\(\\))(?=.*\\.uri\\()(?=.*\\.retrieve\\(\\))(?=.*\\.body\\(\\s*Todo\\.class\\s*\\))",
+          "maxTokens": 900
+        }
+      ],
+      "generators": []
+    }
+  ]
+}

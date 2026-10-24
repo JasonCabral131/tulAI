@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tulai answers</title><style>
+:root{--bg:#10151f;--card:#18202e;--line:#2a3550;--ink:#eef2f9;--sub:#9aa6bb;--accent:#7cc4ff;--ok:#2e8b57}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.45 -apple-system,system-ui,sans-serif;display:flex;flex-direction:column;height:100vh}
+header{-webkit-app-region:drag;display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line)}header b{flex:1}
+.dot{width:8px;height:8px;border-radius:50%;background:#c0392b}.dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+button{-webkit-app-region:no-drag;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 10px;font:inherit;cursor:pointer}button.primary{background:var(--accent);color:#06121f;border-color:var(--accent);font-weight:700}
+main{flex:1;overflow:auto;padding:10px 12px}.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px}.item:first-child{border-color:var(--accent)}
+.q{color:var(--sub);font-size:12.5px;margin-bottom:6px}.a{white-space:pre-wrap}.a pre{background:#0a0f18;border:1px solid var(--line);border-radius:8px;padding:8px;overflow:auto;white-space:pre;font:12px/1.4 ui-monospace,Menlo,monospace;margin:6px 0}.a code{font:12px ui-monospace,Menlo,monospace;background:#0a0f18;padding:1px 4px;border-radius:4px}.empty{color:var(--sub);text-align:center;margin-top:40px}
+footer{display:flex;gap:8px;padding:9px 12px;border-top:1px solid var(--line);align-items:center}footer .sub{color:var(--sub);font-size:12px;flex:1}
+</style></head><body>
+<header><span class="dot" id="dot"></span><b id="title">Tulai answers</b><button id="hide" title="Hide this window">✕</button></header>
+<main id="list"><div class="empty">Listening. When someone asks a question, a suggested answer appears here.<br><br>Only you can see this window: it is hidden from screen sharing.</div></main>
+<footer><span class="sub" id="state">Auto answer on</span><button id="toggle">Pause</button><button id="solve" title="Read the screen and answer (coding problems get a solution)">Solve screen</button><button class="primary" id="answer">Answer</button></footer>
+<script>
+const $ = (id) => document.getElementById(id), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+/** Escaped text with ```code blocks``` and `inline code` shown as code (nothing else is turned into HTML). */
+const fmt = (s) => String(s).split(/```[\w+-]*\n?([\s\S]*?)```/g).map((part, i) => i % 2 ? `<pre>${esc(part.replace(/\n$/, ''))}</pre>` : esc(part).replace(/`([^`\n]+)`/g, '<code>$1</code>')).join('');
+let on = true, shown = '';
+async function post(action) { try { await fetch('/api/bot/live', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) }); } catch {} poll(); }
+async function poll() {
+  try { const s = await (await fetch('/api/bot/live')).json(); on = s.on; $('dot').className = 'dot' + (s.recording ? ' on' : '');
+    $('title').textContent = s.recording ? 'Tulai answers · listening' : 'Tulai answers'; $('state').textContent = s.thinking ? 'Thinking…' : on ? 'Auto answer on' : 'Paused: press Answer when you need one'; $('toggle').textContent = on ? 'Pause' : 'Resume';
+    const html = (s.items || []).map((x) => `<div class="item"><div class="q">“${esc(x.question)}”</div><div class="a">${fmt(x.text)}</div></div>`).join('');
+    if (html && html !== shown) { shown = html; $('list').innerHTML = html; $('list').scrollTop = 0; } } catch {}
+}
+$('answer').onclick = () => post('answer'); $('solve').onclick = () => post('solve'); $('toggle').onclick = () => post(on ? 'off' : 'on'); $('hide').onclick = () => window.close();
+poll(); setInterval(poll, 1500);
+</script></body></html>

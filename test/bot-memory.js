@@ -1,0 +1,4 @@
+const assert=require('assert'),fs=require('fs'),os=require('os'),path=require('path');
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'tulai-memory-test-'));process.env.GC_DATA_DIR=tmp;
+const memory=require('../bot-memory');
+try {assert.deepStrictEqual(memory.read(),[]);memory.save([' Use examples ','Use examples','Keep answers short']);assert.deepStrictEqual(memory.read(),['Use examples','Keep answers short']);assert(memory.context(memory.read()).includes('current request takes precedence'));delete require.cache[require.resolve('../bot-memory')];assert.equal(require('../bot-memory').read().length,2);assert.throws(()=>memory.save('bad'));memory.save([]);assert.deepStrictEqual(memory.read(),[]);console.log('PASS: corrections persist, deduplicate, reload, validate and delete');}finally{fs.rmSync(tmp,{recursive:true,force:true})}

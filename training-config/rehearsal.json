@@ -1,0 +1,397 @@
+{
+ "origin": "Answers written by the unmodified base model itself (rehearsal data: keeps what it already knows while it learns new skills). Wrong or off-language answers were replaced with checked answers or dropped.",
+ "examples": [
+  [
+   "What is the capital of Spain? One word.",
+   "Madrid"
+  ],
+  [
+   "What is the capital of Germany? One word.",
+   "Berlin"
+  ],
+  [
+   "What is the capital of Thailand? One word.",
+   "Bangkok"
+  ],
+  [
+   "What is the capital of Canada? One word.",
+   "Ottawa"
+  ],
+  [
+   "What is 14 plus 28? Just the number.",
+   "42"
+  ],
+  [
+   "What is 8 times 7? Just the number.",
+   "56"
+  ],
+  [
+   "What is 144 divided by 12? Just the number.",
+   "12"
+  ],
+  [
+   "What is 50 minus 18? Just the number.",
+   "32"
+  ],
+  [
+   "What is 25 percent of 80? Just the number.",
+   "20"
+  ],
+  [
+   "What is the square of 12? Just the number.",
+   "144"
+  ],
+  [
+   "Which planet is the largest in our solar system? One word.",
+   "Jupiter"
+  ],
+  [
+   "Which planet has rings and is famous for them? One word.",
+   "Saturn."
+  ],
+  [
+   "What is the chemical symbol for sodium? One short answer.",
+   "Na"
+  ],
+  [
+   "What is the chemical formula of table salt?",
+   "The chemical formula for table salt is NaCl."
+  ],
+  [
+   "What gas do plants absorb from the air? One word.",
+   "Carbon dioxide."
+  ],
+  [
+   "How many hours are in a day? Just the number.",
+   "24"
+  ],
+  [
+   "How many seconds are in a minute? Just the number.",
+   "60"
+  ],
+  [
+   "How many weeks are in a year, roughly? Just the number.",
+   "52"
+  ],
+  [
+   "What is the boiling point of water in Celsius? Just the number.",
+   "100"
+  ],
+  [
+   "What is the freezing point of water in Celsius? Just the number.",
+   "0"
+  ],
+  [
+   "Who wrote Romeo and Juliet? One name.",
+   "William Shakespeare wrote Romeo and Juliet."
+  ],
+  [
+   "Who painted the Mona Lisa? One name.",
+   "The Mona Lisa was painted by Leonardo da Vinci."
+  ],
+  [
+   "Who was the first President of the United States? One name.",
+   "The first President of the United States was George Washington."
+  ],
+  [
+   "What is the longest river in Africa? One word.",
+   "Nile"
+  ],
+  [
+   "What is the tallest mountain on Earth? One name.",
+   "The tallest mountain on Earth is Mount Everest."
+  ],
+  [
+   "Which continent is Egypt in? One word.",
+   "Africa"
+  ],
+  [
+   "Which country has the city of Cebu? One word.",
+   "Philippines."
+  ],
+  [
+   "What language is spoken in Brazil? One word.",
+   "Portuguese"
+  ],
+  [
+   "What does HTML stand for?",
+   "HTML stands for HyperText Markup Language."
+  ],
+  [
+   "What does CSS stand for?",
+   "CSS stands for Cascading Style Sheets."
+  ],
+  [
+   "What does URL stand for?",
+   "URL stands for Uniform Resource Locator. It is a string of characters used to specify how to locate and retrieve a resource on the web."
+  ],
+  [
+   "What does JSON stand for?",
+   "JSON stands for JavaScript Object Notation. It is a lightweight data-interchange format that is easy for humans to read and write and easy for machines to parse and generate."
+  ],
+  [
+   "What does SSH stand for?",
+   "SSH stands for Secure Shell. It is a cryptographic protocol for secure network connections and remote command-line logins."
+  ],
+  [
+   "What does DNS stand for?",
+   "DNS stands for Domain Name System. It is a hierarchical and distributed system that translates domain names (names) into IP addresses, which are used by devices to communicate over the Internet."
+  ],
+  [
+   "What is the file extension for a JavaScript file?",
+   "The file extension for a JavaScript file is `.js`."
+  ],
+  [
+   "What is the file extension for a Markdown file?",
+   "The file extension for a Markdown file is `.md`."
+  ],
+  [
+   "Which git command downloads changes and merges them into the current branch? Just the command.",
+   "git pull"
+  ],
+  [
+   "Which git command lists the commit history? Just the command.",
+   "`git log`"
+  ],
+  [
+   "Which git command stages all changed files? Just the command.",
+   "`git add .`"
+  ],
+  [
+   "Which npm command installs the dependencies listed in package.json? Just the command.",
+   "npm install"
+  ],
+  [
+   "What does the Unix command \"ls\" do? One short sentence.",
+   "The Unix command \"ls\" lists files and directories in a specified directory."
+  ],
+  [
+   "What does the Unix command \"pwd\" do? One short sentence.",
+   "\"pwd\" prints the name of the current working directory."
+  ],
+  [
+   "What does the Unix command \"rm\" do? One short sentence.",
+   "The Unix command `rm` removes files or directories."
+  ],
+  [
+   "In Python, which keyword defines a function? One word.",
+   "def"
+  ],
+  [
+   "In Python, how do you print the text hello? Just the code.",
+   "print(\"hello\")"
+  ],
+  [
+   "In JavaScript, which method adds an item to the end of an array? Just the method name.",
+   "`push()`"
+  ],
+  [
+   "In SQL, which keyword filters rows? One word.",
+   "WHERE"
+  ],
+  [
+   "In HTTP, which method is normally used to create a resource? One word.",
+   "POST"
+  ],
+  [
+   "Which HTTP status code means success? Just the number.",
+   "200"
+  ],
+  [
+   "Which HTTP status code means the server had an error? Just the number.",
+   "500"
+  ],
+  [
+   "What is a bug in software? One short sentence.",
+   "A bug is an error or unexpected behavior in software that causes it to malfunction."
+  ],
+  [
+   "What is a pull request? One short sentence.",
+   "A pull request is a request to merge changes from one version of a project to another."
+  ],
+  [
+   "What is a variable in programming? One short sentence.",
+   "A variable in programming is a named storage location that holds a value which can change during the execution of a program."
+  ],
+  [
+   "What is an array? One short sentence.",
+   "An array is a data structure that stores a collection of items all of the same type."
+  ],
+  [
+   "What is recursion? One short sentence.",
+   "Recursion is a process of solving a problem by repeating the same process in smaller and smaller subproblems until a base case is reached."
+  ],
+  [
+   "What is an IP address? One short sentence.",
+   "An IP address is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication."
+  ],
+  [
+   "Translate to Tagalog: Good evening.",
+   "Magandang gabi po."
+  ],
+  [
+   "Translate to Tagalog: Please wait.",
+   "Pakihintay lang po."
+  ],
+  [
+   "Translate to Tagalog: I am hungry.",
+   "Gutom na ako."
+  ],
+  [
+   "Translate to English: Salamat sa tulong mo.",
+   "Thank you for your help."
+  ],
+  [
+   "Translate to English: Magandang umaga po.",
+   "Good morning."
+  ],
+  [
+   "Translate to English: Ingat ka.",
+   "Take care."
+  ],
+  [
+   "Ano ang ibig sabihin ng \"kumusta\"?",
+   "Ang \"kumusta\" ay pagbati na nangangahulugang \"how are you?\" sa Ingles."
+  ],
+  [
+   "Ano ang kabisera ng Japan? Isang salita lang.",
+   "Tokyo."
+  ],
+  [
+   "Ilang araw mayroon ang isang linggo? Numero lang.",
+   "7"
+  ],
+  [
+   "Ilang buwan mayroon ang isang taon? Numero lang.",
+   "12"
+  ],
+  [
+   "Sino ang sumulat ng Noli Me Tangere? Isang pangalan lang.",
+   "Si José Rizal."
+  ],
+  [
+   "Kumusta ang araw mo?",
+   "Mabuti naman, salamat! Ikaw, kumusta ang araw mo?"
+  ],
+  [
+   "Salamat!",
+   "Walang anuman!"
+  ],
+  [
+   "Paalam na!",
+   "Paalam din! Ingat ka."
+  ],
+  [
+   "Pwede mo ba akong tulungan?",
+   "Oo naman! Ano ang maitutulong ko sa iyo?"
+  ],
+  [
+   "Hello there!",
+   "Hello! Hello there. How can I assist you today?"
+  ],
+  [
+   "Hi, how are you?",
+   "Hi! I'm doing well, thank you. How can I help you today?"
+  ],
+  [
+   "Thanks a lot!",
+   "You're welcome! If you have any questions or need assistance, feel free to ask."
+  ],
+  [
+   "Good night!",
+   "Good night! Sleep well!"
+  ],
+  [
+   "See you later!",
+   "See you later! Don't hesitate to ask if you need any help in the future."
+  ],
+  [
+   "What can you help me with? One short sentence.",
+   "I can answer questions, help with writing and code, and do tasks on your Mac."
+  ],
+  [
+   "Write a one-line greeting for a teammate.",
+   "Hi team! Hope you are having a great day."
+  ],
+  [
+   "Write a one-sentence reminder to submit my timesheet.",
+   "Don't forget to submit your timesheet by the end of the day to meet the deadline."
+  ],
+  [
+   "Summarize in one sentence: The team finished the login page and started on the dashboard.",
+   "The team completed the login page and began working on the dashboard."
+  ],
+  [
+   "Summarize in one sentence: The server was down for ten minutes because of a bad deploy, and it was rolled back.",
+   "The server experienced a ten-minute downtime due to a faulty deployment that was subsequently rolled back."
+  ],
+  [
+   "List three colors, separated by commas.",
+   "Red, Blue, Green"
+  ],
+  [
+   "List three days of the week, separated by commas.",
+   "Monday, Tuesday, Wednesday"
+  ],
+  [
+   "List three programming languages, separated by commas.",
+   "Python, Java, JavaScript"
+  ],
+  [
+   "Name two fruits.",
+   "Apples and bananas."
+  ],
+  [
+   "Name a common database.",
+   "PostgreSQL."
+  ],
+  [
+   "Name a popular code editor.",
+   "Visual Studio Code."
+  ],
+  [
+   "Is 17 an odd or even number? One word.",
+   "Odd"
+  ],
+  [
+   "Is 64 an odd or even number? One word.",
+   "Even"
+  ],
+  [
+   "Which is bigger, 9 or 12? Just the number.",
+   "12"
+  ],
+  [
+   "What comes after Tuesday? One word.",
+   "Wednesday"
+  ],
+  [
+   "What comes before March? One word.",
+   "February"
+  ],
+  [
+   "What is the plural of \"child\"?",
+   "The plural of \"child\" is \"children\"."
+  ],
+  [
+   "What is the opposite of \"hot\"?",
+   "The opposite of \"hot\" is \"cold\"."
+  ],
+  [
+   "Spell the word \"banana\" backwards.",
+   "ananab"
+  ],
+  [
+   "Reply with only the word: ok",
+   "ok"
+  ],
+  [
+   "Reply with only the word: yes",
+   "yes"
+  ],
+  [
+   "Reply with only the number: 5",
+   "5"
+  ]
+ ]
+}

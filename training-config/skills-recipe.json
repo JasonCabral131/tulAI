@@ -1,0 +1,18 @@
+{
+ "about": "The exact recipe that produced the Tulai skills model (passed every regression check, memory checks included). Used by the installer, the first-run trainer and the Train skills button, so every install trains the same way. With skill packs the adapter is wider (24 layers, rank 16).",
+ "model": "mlx-community/Qwen2.5-3B-Instruct-4bit",
+ "baseRevision": "4f83f8f146fdf28b512a06562b671d7af4fab457",
+ "iterations": 800,
+ "learningRate": 4e-05,
+ "numLayers": 16,
+ "batchSize": 2,
+ "gradAccum": 2,
+ "seeds": [
+  0,
+  7,
+  21,
+  42
+ ],
+ "packLayers": 24,
+ "packRank": 16
+}

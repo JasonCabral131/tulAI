@@ -1,0 +1,71 @@
+(()=>{
+ const el=id=>document.getElementById(id);let busy=false,timer,currentRun=null,dataset=null;
+ function graph(points){
+  if(!points.length){el('trainGraph').textContent='The graph appears when the trainer records its first loss measurement.';return}
+  const maxX=Math.max(1,...points.map(p=>p.step)),maxY=Math.max(1,...points.map(p=>p.loss))*1.1;
+  const x=n=>45+n/maxX*490,y=n=>195-n/maxY*170;
+  let svg='<svg viewBox="0 0 560 230" role="img" aria-label="Training and validation loss by step"><path d="M45 20V195H535" fill="none" stroke="currentColor" opacity=".4"/>';
+  for(let i=0;i<=4;i++){const n=maxY*i/4;svg+=`<text x="38" y="${y(n)+4}" text-anchor="end" fill="currentColor" font-size="10">${n.toFixed(1)}</text>`}
+  for(const [kind,color] of [['training','#69b7ff'],['validation','#ffa66e']]){const ps=points.filter(p=>p.kind===kind);svg+=`<polyline fill="none" stroke="${color}" stroke-width="2.5" points="${ps.map(p=>x(p.step)+','+y(p.loss)).join(' ')}"/>`;for(const p of ps)svg+=`<circle cx="${x(p.step)}" cy="${y(p.loss)}" r="3" fill="${color}"><title>Step ${p.step}: ${p.loss}</title></circle>`}
+  svg+=`<text x="45" y="216" fill="currentColor" font-size="11">0</text><text x="535" y="216" text-anchor="end" fill="currentColor" font-size="11">${maxX} steps</text></svg>`;el('trainGraph').innerHTML=svg;
+ }
+ let last=null;
+
+ function drawHistory(s){const box=el('trainHistory');if(!box)return;box.replaceChildren();const list=s.history||[];el('trainHistoryCount').textContent=list.length?'· '+list.length+' trained':'';
+  if(!list.length){box.textContent='No trained models yet.';return}
+  const col={active:'#2e8b57',previous:'#3b82f6','activation-ready':'#2e8b57',training:'#d97706'};
+  for(const h of list){const d=document.createElement('div');const c=col[h.status]||(h.status==='activation-blocked'||h.status==='failed-or-interrupted'?'#c0392b':'#8a94a8');
+   d.style.cssText='padding:10px 12px;margin:6px 0;border:1px solid var(--line);border-left:4px solid '+c+';border-radius:10px';
+   const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap';const a=document.createElement('b');a.textContent=when(h.at);const b=document.createElement('span');b.textContent=h.label;b.style.cssText='color:'+c+';font-weight:700';top.append(a,b);
+   const bits=[h.rows+' training examples',h.iterations?h.iterations+' steps':null,h.score?'quality checks: '+h.score.score+' of '+h.score.total+' ('+Math.round(100*h.score.score/h.score.total)+'%)':'quality checks: not run'].filter(Boolean).join(' · ');
+   const info=document.createElement('div');info.className='sub';info.style.margin='4px 0 0';info.textContent=bits;
+   const learned=document.createElement('div');learned.className='sub';learned.style.margin='2px 0 0';learned.textContent='Trained on: '+h.learned.join(' · ');
+   d.append(top,info,learned);if(h.note){const n=document.createElement('div');n.className='sub';n.style.cssText='margin:2px 0 0;color:#c0392b';n.textContent=h.note;d.append(n)}box.append(d)}}
+ function paint(s){last=s;drawWarnings(s);drawHistory(s);currentRun=s.run;el('trainNow').disabled=s.running||busy||!s.runtimeReady;el('trainSkills').disabled=s.running||busy||!s.runtimeReady;el('trainActivate').hidden=!(s.status==='activation-ready'&&!s.active&&!s.running);el('trainActivate').disabled=busy;el('trainStop').disabled=!s.running||busy;el('trainLoader').hidden=!s.running&&!busy;el('trainState').textContent=s.status.replaceAll('-',' ')+(s.running&&s.attempt?' · try '+s.attempt.n+' of '+s.attempt.of+' (a model that misses 90% is retrained with a new random start)':'');const c=s.counts;el('trainExamples').textContent=s.nextDataset.total;el('trainSize').textContent=(s.nextDataset.bytes/1024).toFixed(1)+' KB';el('trainStep').textContent=s.step+' / '+s.iterations;el('trainSplit').textContent=`Next dataset: ${s.nextDataset.eligible} training targets · ${s.nextDataset.unverified} unverified · ${s.nextDataset.excluded} excluded`;el('trainReviews').textContent=s.nextDataset.reason||'Ready to train on conversation-separated task outcomes';el('trainProgress').value=Math.min(100,s.step/s.iterations*100);el('trainSource').textContent='Last run source: '+s.source;el('trainRollback').disabled=s.running||busy||!s.activation?.current;el('trainReviews').textContent += s.blocked?' Not activated: '+s.blocked.reason:s.activation?.current?' Active candidate: '+s.activation.current.run:' Base local model active.';{const box=el('trainBlocked');box.replaceChildren();box.hidden=!s.blocked||!s.blocked.cases||!s.blocked.cases.length;if(!box.hidden){for(const c of s.blocked.cases){const row=document.createElement('div');row.textContent='✗ '+c.name+': expected '+c.expected+' · got '+c.answer;box.append(row)}}}graph(s.points)}
+ async function refresh(){try{const r=await fetch('/api/bot/training');if(!r.ok)throw Error('Training service unavailable');paint(await r.json())}catch(e){el('trainState').textContent=e.message;el('trainNow').disabled=true}}
+
+ function drawWarnings(s){const box=el('trainWarnings');if(!box)return;box.replaceChildren();for(const w of s.warnings||[]){const d=document.createElement('div');d.style.cssText='display:flex;gap:8px;align-items:flex-start;padding:8px 10px;margin:6px 0;border-radius:10px;border:1px solid var(--line);font-size:13px;line-height:1.4;'+(w.level==='warn'?'background:color-mix(in srgb,#e0a030 14%,transparent);':'opacity:.85;');d.setAttribute('role',w.level==='warn'?'alert':'status');const i=document.createElement('span');i.textContent=w.level==='warn'?'⚠️':'ℹ️';const t=document.createElement('span');t.textContent=w.text;d.append(i,t);box.append(d)}}
+ const when=(t)=>t?new Date(t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'earlier';
+ const describe=(m)=>!m?'The built-in base model (no trained skills)':`Trained model from ${when(m.at)} · ${m.gate?m.gate.score+' of '+m.gate.total+' checks passed':'no check record'} · ${m.hasMemory?'memory skills: yes':'memory skills: no'}`;
+ /** A clear question before anything that changes what the bot runs or uses a lot of the Mac. Resolves true to go ahead. */
+ function confirmModal({title,lines,warn,ok,cancel}){return new Promise((resolve)=>{const dlg=document.createElement('dialog');dlg.style.cssText='max-width:520px;border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--card,#fff);color:inherit;box-shadow:0 20px 60px rgba(0,0,0,.45)';const h=document.createElement('h4');h.textContent=title;h.style.margin='0 0 10px';dlg.append(h);for(const l of lines){const p=document.createElement('p');p.textContent=l;p.style.cssText='margin:6px 0;font-size:13.5px;line-height:1.45';dlg.append(p)}for(const w of warn||[]){const p=document.createElement('p');p.textContent='⚠️ '+w;p.style.cssText='margin:8px 0;padding:8px 10px;border-radius:10px;font-size:13px;background:color-mix(in srgb,#e0a030 16%,transparent)';p.setAttribute('role','alert');dlg.append(p)}const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;justify-content:flex-end;margin-top:14px';const no=document.createElement('button');no.className='btn';no.textContent=cancel||'Cancel';const yes=document.createElement('button');yes.className='btn primary';yes.textContent=ok||'Continue';row.append(no,yes);dlg.append(row);document.body.append(dlg);const done=(v)=>{try{dlg.close()}catch{}dlg.remove();resolve(v)};no.onclick=()=>done(false);yes.onclick=()=>done(true);dlg.addEventListener('cancel',()=>done(false));dlg.showModal();no.focus()})}
+ async function confirmThen(kind){
+  const s=last||{},m=s.models||{},cur=m.current,prev=m.previous;
+  if(kind==='rollback'){
+   const warn=[];if(cur&&cur.hasMemory&&!(prev&&prev.hasMemory))warn.push('The model you would switch to was trained without the memory skills. It may ignore your saved notes and may claim it saved something it did not.');
+   if(cur&&cur.gate&&(!prev||!prev.gate||prev.gate.score<cur.gate.score))warn.push('It passed fewer regression checks than the model you use now.');
+   if(!prev)warn.push('There is no earlier trained model, so Tulai goes back to the built-in base model. Everything the trained skills taught it is switched off (not deleted).');
+   if(!await confirmModal({title:'Restore the previous model?',lines:['Now active: '+describe(cur),'After restoring: '+describe(prev),'The bot\'s local brain restarts for a few seconds. Nothing is deleted: press the same button again to switch back.'],warn,ok:'Restore previous model',cancel:'Keep the current one'}))return;
+  } else if(kind==='activate'){
+   if(!await confirmModal({title:'Switch to the new trained model?',lines:['Now active: '+describe(cur),'The new model passed every regression check on the converted file that the bot actually runs.','The bot\'s local brain restarts for a few seconds. You can go back with "Restore previous model".'],ok:'Switch to the new model',cancel:'Not now'}))return;
+  } else if(kind==='start'||kind==='skills'){
+   const warn=['Training uses most of the Mac\'s memory and GPU for about 15 to 40 minutes. The fans will run and other apps may slow down. Keep it plugged in.'];if(cur&&cur.hasMemory)warn.push('You already use a model with the memory skills. A new model only replaces it if you press Switch afterwards.');
+   if(!await confirmModal({title:kind==='skills'?'Train the skills model now?':'Train now?',lines:['Tulai trains a new local model from the built-in skills, memory skills, your own examples'+(kind==='start'?' and your accepted task outcomes':'')+'. The bot keeps using its current model until the new one passes every check.'],warn,ok:'Start training',cancel:'Not now'}))return;
+  }
+  action(kind);
+ }
+ window.TulaiConfirm=confirmModal; window.TulaiDescribe=describe;
+ async function action(action){busy=true;el('trainNow').disabled=true;el('trainStop').disabled=true;el('trainLoader').hidden=false;try{const r=await fetch('/api/bot/training',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});if(!r.ok)throw Error('Could not '+action+' training');const s=await r.json();el('trainMessage').textContent=s.message}catch(e){el('trainMessage').textContent=e.message}finally{busy=false;await refresh()}}
+ function drawDataset(){
+  const box=el('trainingDataRows');box.replaceChildren();if(!dataset)return;
+  const split=el('trainingDataSplit').value,q=el('trainingDataSearch').value.toLowerCase();
+  const rows=dataset.examples.filter(r=>(split==='all'||r.split===split)&&(!q||r.messages.some(m=>m.content.toLowerCase().includes(q))));
+  el('trainingDataCount').textContent=`${rows.length} of ${dataset.examples.length} examples · ${dataset.run||'Next task-based dataset'}`;
+  for(const row of rows){const card=document.createElement('details'),title=document.createElement('summary');title.textContent=(row.category?row.category+' · '+row.state:({train:'Training',valid:'Validation',test:'Held-out test'}[row.split]))+' '+row.id.split('-').pop()+' · '+(row.messages.find(m=>m.role==='user')?.content||'Example');card.append(title);if(row.learningType){const info=document.createElement('p');info.textContent=row.learningType;card.append(info)}if(row.rejectedAnswer){const rejected=document.createElement('p');rejected.textContent='Failed answer (not a training target): '+row.rejectedAnswer;card.append(rejected)}if(row.source){const source=document.createElement('p');source.textContent=`Source: ${row.source.channel||'saved chat'} · chat ${row.source.chatId}, message ${row.source.message+1}. ${row.reason}`;card.append(source)}
+   for(const m of row.messages){const label=document.createElement('strong'),body=document.createElement('p');label.textContent=m.role==='assistant'?'Expected answer':m.role==='user'?'Question':'System context';body.textContent=m.content;card.append(label,body)}box.append(card);
+  }
+ }
+ for(const d of document.querySelectorAll('dialog.tmodal')){d.addEventListener('click',e=>{if(e.target===d||e.target.dataset?.close!==undefined)d.close()})}
+ el('trainHistoryBtn').onclick=()=>el('trainHistoryDlg').showModal();
+ async function loadData(){
+  const src=el('trainingDataSource').value;el('trainingDataCount').textContent='Loading examples…';el('trainingDataRows').replaceChildren();dataset=null;
+  try{if(src==='run'&&!currentRun)throw Error('No training run yet.');const r=await fetch('/api/bot/training/dataset'+(src==='run'?'?run='+encodeURIComponent(currentRun):''));const data=await r.json();if(!r.ok)throw Error(data.error||'Dataset unavailable');dataset=data;
+   el('trainingDataOrigin').textContent=src==='run'?data.source:'These are replies saved from your own chats. They are marked "unverified" and are NOT used for training unless you approve them: '+data.source;drawDataset()}catch(e){el('trainingDataCount').textContent=e.message}
+ }
+ el('viewTrainingData').onclick=()=>{el('trainingDataViewer').showModal();el('trainingDataSource').value=currentRun?'run':'chats';loadData()};
+ el('trainingDataSource').onchange=loadData;
+ el('trainingDataSplit').onchange=drawDataset;el('trainingDataSearch').oninput=drawDataset;
+ el('trainNow').onclick=()=>confirmThen('start');el('trainSkills').onclick=()=>confirmThen('skills');el('trainActivate').onclick=()=>confirmThen('activate');el('trainStop').onclick=async()=>{const s=last||{},pct=s.iterations?Math.round((s.step||0)*100/s.iterations):0;if(!await confirmModal({title:'Stop the training?',lines:['It is at step '+(s.step||0)+' of '+(s.iterations||'?')+' ('+pct+'%).','A full training takes about 15 to 40 minutes or more. If you stop now, this progress is thrown away and you must start again from step 0.','Your current model stays exactly as it is.'],warn:pct>=50?['It is already '+pct+'% done. Stopping now wastes most of the work.']:[],ok:'Yes, stop and lose the progress',cancel:'Keep training'}))return;action('stop')};el('trainRollback').onclick=()=>confirmThen('rollback');
+ const visible=()=>el('settings').classList.contains('open')&&el('localTrainingPanel').classList.contains('on');
+ new MutationObserver(()=>{if(visible()){refresh();if(!timer)timer=setInterval(refresh,2000)}else{clearInterval(timer);timer=null}}).observe(el('settings'),{attributes:true,subtree:true,attributeFilter:['class']});
+})();

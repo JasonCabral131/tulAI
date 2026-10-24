@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tulai helper</title><style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;-webkit-app-region:drag;cursor:grab;font:12.5px/1.35 -apple-system,system-ui,sans-serif}
+#bubble{position:absolute;left:8px;right:8px;top:6px;background:#10151f;color:#eef2f9;border:1px solid #2fb8a6;border-radius:12px;padding:8px 10px;min-height:18px;box-shadow:0 4px 14px rgba(0,0,0,.35);opacity:0;transition:opacity .25s}
+#bubble.on{opacity:1}#bubble:after{content:'';position:absolute;bottom:-7px;left:50%;margin-left:-7px;border:7px solid transparent;border-top-color:#2fb8a6;border-bottom:0}
+#tag{position:absolute;bottom:4px;width:100%;text-align:center;color:#9fe9df;font-size:11px;text-shadow:0 1px 2px #000}
+canvas{position:absolute;left:20px;top:78px;width:200px;height:200px}
+</style></head><body><div id="bubble"></div><canvas id="robot" width="360" height="360"></canvas><div id="tag">helper</div>
+<script>
+window.__pendingSkin = { type: 'classic', shell: '#e8f7f5', accent: '#2fb8a6', eye: '#7ff0e0' };
+let seq = -1; const b = document.getElementById('bubble');
+async function poll() {
+  try { const s = await (await fetch('/api/bot/helper')).json(); if (s.seq !== seq) { seq = s.seq; b.textContent = s.text || ''; b.classList.toggle('on', !!s.text);
+    if (window.botScene) { window.botScene.setState(s.state || 'idle'); if (s.move) window.botScene.perform(s.move); } } } catch {}
+}
+setInterval(poll, 500); poll();
+</script><script type="module" src="/bot-robot.js"></script></body></html>

@@ -1,0 +1,13 @@
+const assert=require('assert'),fs=require('fs'),os=require('os'),path=require('path');
+process.env.GC_DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'tulai-partners-test-'));
+const partners=require('../bot-partners');
+(async()=>{assert.equal(partners.parse('create a new bot partner').count,2);assert.equal(partners.parse('create 4 bots to talk about management').count,4);assert(!partners.parse("don't create a bot"));assert(!partners.parse('open Chrome'));
+let shown,revision=0,spoken=[];global.__tulaiRoom={show:async n=>{shown=n},revision:()=>revision,stop:()=>revision++,answer:async e=>spoken.push(e)};
+let r=await partners.handle('create a bot partner',{sid:'test'});assert.equal(shown,2);assert(r.reply.includes('What topic'));
+let calls=[];r=await partners.handle('management and reports',{sid:'test',nlu:{chat:async a=>{calls.push(a);return{content:'Draft '+calls.length}}}});assert.equal(calls.length,3);assert.equal(spoken.length,3);assert(calls[1].messages.at(-1).content.includes('builder: Draft 1'));assert(r.reply.includes('Discussion saved'));assert.equal(global.__tulaiTeamBusy,false);assert.equal(fs.readdirSync(path.join(process.env.GC_DATA_DIR,'bot-discussions')).length,2);
+assert.equal(partners.parse('create four bots to discuss reports').count,4);assert.equal(partners.parse('create four bots to discuss reports').topic,'reports');assert(!partners.parse('why do bots talk?'));
+ delete require.cache[require.resolve('../bot-partners')];const restarted=require('../bot-partners');let resumed=[];await restarted.handle('resume the discussion',{sid:'test',nlu:{chat:async a=>{resumed.push(a);return{content:'Revised'}}}});assert(resumed[0].messages.some(m=>m.content.includes('Previous unverified discussion')));
+ r=await restarted.handle('create 9 bots',{sid:'test'});assert(r.reply.includes('2 to 8'));
+ r=await restarted.handle('create a partner about reports',{sid:'fail',nlu:{chat:async()=>{throw Error('offline')}}});assert(r.reply.includes('offline'));assert.equal(global.__tulaiTeamBusy,false);
+ const abort=new AbortController();let n=0;r=await restarted.handle('create a partner about cancellation',{sid:'cancel',signal:abort.signal,nlu:{chat:async()=>{n++;abort.abort();return{content:'Late answer'}}}});assert.equal(n,1);assert(r.reply.includes('stopped'));assert.equal(global.__tulaiTeamBusy,false);
+ const local=require('../local');r=await local.handle('lol if you dont know the answer you will research that on internet and save to memory');assert(r.reply.startsWith('Remembered:'));console.log('PASS: main bot partner intent, topic follow-up, peer context, spoken turns, reference saving, conditional research policy');})().catch(e=>{console.error(e);process.exitCode=1});

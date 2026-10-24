@@ -1,0 +1,11 @@
+const assert=require('assert'),fs=require('fs'),os=require('os'),path=require('path');
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'tulai-vector-test-'));process.env.GC_DATA_DIR=tmp;
+const db=require('../vector-memory');
+(async()=>{let notes=["Prefer concise replies with an example.","Use Safari for browsing.","It's okay to ask about missing requirements."];let calls=0;const embed=async text=>{calls++;return text.includes('Safari')||text.includes('browser')?[1,0]:[0,1]};
+ let r=await db.retrieve('browser',()=>notes,embed);assert.equal(r[0].text,notes[1]);assert.equal(db.status().indexed,3);assert.equal(calls,4);
+ await db.retrieve('browser',()=>notes,embed);assert.equal(calls,5,'reuse cached document vectors');
+ notes=notes.filter(t=>!t.includes('Safari'));db.sync(notes);r=await db.retrieve('browser',()=>notes,embed);assert(!r.some(t=>t.text.includes('Safari')));assert.equal(db.status().total,2);
+ r=await db.retrieve('requirements',()=>notes,async()=>{throw Error('offline')});assert(r[0].text.includes('requirements'));assert.equal(db.status().mode,'keyword fallback');
+ let changed=false;r=await db.retrieve('query',()=>notes,async()=>{if(!changed){changed=true;notes=[];db.sync(notes)}return [1,0]});assert.equal(r.length,0,'deletion during search must not leak removed memory');assert.equal(db.status().total,0);
+ console.log('PASS: semantic ranking, cache, apostrophes, deletion, fallback, deletion during retrieval');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{require('../memory-embeddings').stop();fs.rmSync(tmp,{recursive:true,force:true})});

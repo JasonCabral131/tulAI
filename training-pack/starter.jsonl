@@ -1,0 +1,15 @@
+{"prompt": "kumusta ka?", "answer": "Mabuti naman, salamat! Ikaw, kumusta ang araw mo?"}
+{"prompt": "pwede mo ba akong tulungan mag-plano ng araw ko?", "answer": "Oo naman! Sabihin mo ang mga kailangan mong gawin at ang oras, at aayusin ko ang pagkakasunod-sunod."}
+{"prompt": "anong ibig sabihin ng standup?", "answer": "Ang standup ay maikling daily meeting ng team: ano ang ginawa kahapon, ano ang gagawin ngayon, at ano ang nakaharang."}
+{"prompt": "can you summarize my day in one line?", "answer": "I can only do that from what I can actually see, like your calendar and reminders. If they are not connected I will say so instead of guessing."}
+{"prompt": "did you send it?", "answer": "I only say something was sent when a tool result confirms it. A draft that is waiting for approval is not sent."}
+{"prompt": "ano ang gagawin ko kung blocked ang ticket ko?", "answer": "Sabihin mo agad sa team sa standup o sa Teams: ano ang naka-block, sino ang kailangan, at hanggang kailan ka makakapaghintay."}
+{"prompt": "give me a one-line status update for the sprint", "answer": "I need the numbers first: how many tickets are done, in progress and blocked. I won't make them up."}
+{"prompt": "salamat!", "answer": "Walang anuman! Sabihin mo lang kung may kailangan ka pa."}
+{"prompt": "what is our team's way of naming branches?", "answer": "I don't have that saved. Tell me the convention (for example feature/TICKET-123-short-name) and I will remember it.", "memory": []}
+{"prompt": "how do we name branches?", "answer": "Your team uses feature/TICKET-123-short-name.", "memory": ["our branch names look like feature/TICKET-123-short-name"]}
+{"prompt": "good morning", "answer": "Good morning! What would you like to do first today?"}
+{"prompt": "ayoko ng mahabang sagot", "answer": "Sige, paiikliin ko ang mga sagot ko."}
+{"check": true, "prompt": "kumusta ka?", "match": "mabuti|ok|maayos|salamat|ikaw", "not": "volume|screenshot|opened"}
+{"check": true, "prompt": "how do we name branches?", "match": "feature/", "memory": ["our branch names look like feature/TICKET-123-short-name"]}
+{"check": true, "prompt": "what is the status of the sprint?", "match": "don'?t have|do not have|need|can'?t|cannot|not connected|no data"}

@@ -1,0 +1,64 @@
+[
+  {
+    "text": "open Safari",
+    "kind": "command",
+    "command": "open safari"
+  },
+  {
+    "text": "buksan mo yung safari tapos hanapin mo yung pizza",
+    "kind": "task"
+  },
+  {
+    "text": "open Teams and start meeting notes",
+    "kind": "task"
+  },
+  {
+    "text": "don't open Safari, just explain what it is",
+    "kind": "question"
+  },
+  {
+    "text": "what is the difference between a mutex and a semaphore",
+    "kind": "question"
+  },
+  {
+    "text": "fix the login bug in my project",
+    "kind": "task"
+  },
+  {
+    "text": "paki open ng Teams",
+    "kind": "command",
+    "command": "open teams"
+  },
+  {
+    "text": "open it again",
+    "kind": "command",
+    "command": "open safari",
+    "history": [
+      {
+        "role": "user",
+        "content": "Open Safari"
+      },
+      {
+        "role": "assistant",
+        "content": "Opened Safari."
+      }
+    ]
+  },
+  {
+    "text": "search for cats and dogs",
+    "kind": "command",
+    "command": "search for cats and dogs"
+  },
+  {
+    "text": "open Safari then check my git status",
+    "kind": "task"
+  },
+  {
+    "text": "buksan ang Teams at simulan ang meeting notes",
+    "kind": "task"
+  },
+  {
+    "text": "explain what a browser does",
+    "kind": "question"
+  }
+]

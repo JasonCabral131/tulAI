@@ -1,0 +1,10 @@
+const assert=require('assert'),fs=require('fs'),vm=require('vm'),path=require('path'),{createRequire}=require('module');
+const file=path.resolve(__dirname,'../harness.js'),real=createRequire(file);let actions=[],controller;
+const local={vocab:()=>({apps:['Safari']}),hasPending:()=>false,handleRules:async cmd=>{actions.push(cmd);if(controller)controller.abort();return{reply:'Completed '+cmd}}};
+const box={module:{exports:{}},require:n=>n==='./local'?local:real(n)};vm.runInNewContext(fs.readFileSync(file,'utf8'),box);const h=box.module.exports,call=name=>({id:name,function:{name,arguments:'{}'}});
+(async()=>{assert(h.toolsFor('show my meetings and reminders').some(t=>t.function.name==='list_meetings'));assert(h.toolsFor('open Downloads').some(t=>t.function.name==='open_folder'));
+ await h.exec('list_meetings',{},{});await h.exec('list_reminders',{},{});await h.exec('open_folder',{name:'downloads'},{});assert.deepStrictEqual(actions,['show my meetings','list my reminders','open downloads']);
+ controller=new AbortController();actions=[];let r=await h.run('show my meetings and list reminders',{opts:{signal:controller.signal},nlu:{available:()=>true,chat:async()=>({tool_calls:[call('list_meetings'),call('list_reminders')]})}});assert.equal(actions.length,1);assert(r.reply.includes('Stopped'));
+ controller=new AbortController();actions=[];r=await h.run('show my meetings',{opts:{signal:controller.signal},nlu:{available:()=>true,chat:async()=>{controller.abort();return{tool_calls:[call('list_meetings')]}}}});assert.equal(actions.length,0);
+ console.log('PASS: calendar/reminder/folder action routing, stop between actions, stop during reasoning');
+})().catch(e=>{console.error(e);process.exitCode=1});

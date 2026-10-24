@@ -1,0 +1,87 @@
+# --- never commit these: they are rebuilt or downloaded by the install steps ---
+node_modules/
+dist/
+build/bin/
+build/models/
+*.gguf
+*.bin
+*.part
+*.dmg
+*.app
+.DS_Store
+
+# --- your private data and settings (tokens live here) ---
+config.json
+prefs.json
+profile.json
+reminders.json
+calendar-cache.json
+calendar-snapshots/
+chats/
+media/
+missions/
+usage.jsonl
+*.log
+.env
+.env.*
+
+# Model weights, checkpoints and interrupted downloads (any location)
+*.safetensors
+*.ggml
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.hdf5
+*.tflite
+*.download
+*.partial
+models/
+checkpoints/
+.cache/
+
+# Generated local memory, browser sessions, evaluations and reports
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+bot-learning.json
+bot-failures.json
+bot-recovery*.json
+bot-discussions/
+browser-accounts/
+browser-evidence/
+artifacts/
+reports/
+reminder-delivery.jsonl
+
+# Imported document knowledge and reading sessions
+document-library.json
+uploads/
+
+code-library.json
+
+# Reviewed correction datasets and evaluation outputs
+training/
+
+# --- build and run output (rebuilt by npm run build / dmg / setup / tests) ---
+# npm run build / dmg: dist/ (Tulai.app, .dmg, .blockmap, latest-mac.yml)
+# build/compile-helpers.js -> build/bin/ (tulay-listen, tulay-ocr, tulai-pdf-text)
+# build/bundle-engines.js  -> build/bin/ (llama-server, whisper, lib/*.so|*.dylib) and build/models/
+# These are listed above too; the build sources in build/*.js, native/*.swift and the icons stay committed.
+dist/
+build/bin/
+build/models/
+*.dmg
+*.blockmap
+latest-mac.yml
+*.dylib
+*.so
+# Python caches from the training scripts
+__pycache__/
+*.pyc
+# saved acceptance-test results (npm run test:acceptance)
+.acc/
+# your editor choice, written on first run
+local-prefs.json

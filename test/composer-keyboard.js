@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const bot=fs.readFileSync('public/bot.html','utf8'),desktop=fs.readFileSync('public/index.html','utf8');
+for(const html of [bot,desktop])for(const [,script] of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(script);
+assert(/<textarea id="q"/.test(bot));
+let handler,sent=0,prevented=0;
+const nodes={q:{addEventListener:(name,fn)=>handler=fn},bar:{requestSubmit:()=>sent++}};
+vm.runInNewContext(bot.match(/\$\('q'\)\.addEventListener\('keydown',[^\n]+/)[0],{$:id=>nodes[id]});
+for(const [shiftKey,isComposing] of [[true,false],[false,true]])handler({key:'Enter',shiftKey,isComposing,preventDefault:()=>prevented++});
+assert.equal(sent,0);assert.equal(prevented,0);handler({key:'Enter',shiftKey:false,isComposing:false,preventDefault:()=>prevented++});assert.equal(sent,1);
+let hidden=0;nodes.input={value:'/he'};nodes.slash={style:{display:'block'}};
+vm.runInNewContext(desktop.slice(desktop.indexOf("$('input').onkeydown ="),desktop.indexOf("$('send').onclick =")),{$:id=>nodes[id],slashItems:[{n:'help'}],slashSel:0,hideSlash:()=>hidden++,showSlash(){},send:()=>sent++});
+nodes.input.onkeydown({key:'Enter',shiftKey:true,isComposing:false,preventDefault:()=>{throw Error('Newline intercepted')}});assert.equal(nodes.input.value,'/he');assert.equal(hidden,1);assert.equal(sent,1);
+console.log('PASS multiline input, Enter submit, Shift+Enter with slash menu, IME and inline script syntax');

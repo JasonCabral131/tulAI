@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Setting up Tulai</title><meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/app-palette.js"></script><script src="/ui-icons.js"></script>
+<style>
+:root{--bg:#10151f;--card:#182030;--ink:#eef2f9;--muted:#93a0b8;--line:#2a3550;--accent:#7cc4ff;--accent2:#b69cff;--ok:#5ed39a;--err:#ff7b7b}
+@media (prefers-color-scheme:light){:root{--bg:#f3f6fb;--card:#fff;--ink:#16202f;--muted:#5d6b84;--line:#d9e1ef;--accent:#2a7fd4;--accent2:#7a5ad6;--ok:#23925d;--err:#c0392b}}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:radial-gradient(900px 500px at 50% -10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent),var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;display:grid;place-items:center;-webkit-user-select:none;user-select:none}
+main{width:min(560px,92vw);padding:28px 0;text-align:center}
+.stage{position:relative;width:176px;height:176px;margin:0 auto 14px}
+.stage svg.ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.ring .bg{stroke:var(--line)}.ring .fg{stroke:url(#g);transition:stroke-dashoffset .5s ease}
+#bot{position:absolute;inset:22px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+#bot svg{width:78px;height:78px}
+.working #bot{animation:bob 1.6s ease-in-out infinite}.done #bot{animation:pop .7s ease both}.err #bot{animation:shake .5s}
+@keyframes bob{50%{transform:translateY(-5px)}}@keyframes pop{40%{transform:scale(1.12)}}@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pct{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:2px 12px;font-weight:700;font-size:13px}
+h1{font-size:24px;margin:16px 0 4px;letter-spacing:-.3px}.sub{color:var(--muted);margin:0 0 20px;min-height:22px}
+.list{display:grid;gap:10px;text-align:left}
+.row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.row .top{display:flex;align-items:center;gap:10px}.row .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 18%,transparent);font-size:15px}
+.row b{flex:1;font-weight:650}.row .st{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.row.ready .st{color:var(--ok)}.row.ready .ic{background:color-mix(in srgb,var(--ok) 20%,transparent)}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s ease}
+.row.ready .bar i{background:var(--ok)}
+.what{color:var(--muted);font-size:12.5px;margin-top:6px}
+.actions{margin-top:20px;display:flex;gap:10px;justify-content:center}
+button{font:inherit;font-weight:650;border:0;border-radius:12px;padding:10px 20px;cursor:pointer;color:#0b1220;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}button[hidden]{display:none}
+.note{margin-top:16px;color:var(--muted);font-size:12.5px}.errbox{color:var(--err);margin-top:12px;font-size:13px}
+</style></head>
+<body><main id="m" class="working">
+<div class="stage"><svg class="ring" viewBox="0 0 176 176"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient></defs><circle class="bg" cx="88" cy="88" r="80"/><circle class="fg" id="fg" cx="88" cy="88" r="80" stroke-dasharray="502.65" stroke-dashoffset="502.65"/></svg><div id="bot"></div><div class="pct" id="pct">0%</div></div>
+<h1 id="h">Getting Tulai ready</h1><p class="sub" id="sub">Downloading the AI that runs on your Mac.</p>
+<div class="list" id="list"></div>
+<div id="skillsStep" hidden>
+  <div class="list" id="packs"></div>
+  <p class="note" id="ftNote" style="margin-top:12px">Fine-tuning takes about 15 to 40 minutes. Keep the Mac plugged in; you can use Tulai meanwhile. Each skill is tested before it is used, and your current model stays if a test fails.</p>
+  <div class="actions"><button id="ftNow">Fine-tune now</button><button class="ghost" id="ftLater">Skip for now</button></div>
+  <p class="note">Skipping is fine: you can fine-tune later in Settings, Train your local bot AI, Skill packs.</p>
+</div>
+<div class="errbox" id="err" hidden></div>
+<div class="actions"><button id="go" hidden>Start Tulai</button><button class="ghost" id="pause" hidden>Pause</button><button id="retry" hidden>Try again</button></div>
+<div class="note">Everything stays on this Mac. Tulai never sends your voice or files anywhere. You only need to do this once.</div>
+</main>
+<script>
+const $=(i)=>document.getElementById(i),ICON={speech:'🎙️',brain:'🧠',memory:'📚'},NAME={speech:'Ears',brain:'Brain',memory:'Memory'},LINE={speech:'Learning to listen',brain:'Learning to think',memory:'Learning to remember'};
+try{window.TulaiIcons&&($('bot').innerHTML=TulaiIcons.bot())}catch{}
+const mb=(n)=>n>=1073741824?(n/1073741824).toFixed(2)+' GB':Math.round(n/1048576)+' MB',spd=(n)=>n>0?(n/1048576).toFixed(1)+' MB/s':'';
+let started=false,closed=false,stepShown=false,skillsDone=false;
+async function post(p){try{return await (await fetch('/api/setup/'+p,{method:'POST'})).json()}catch{return null}}
+function draw(s){
+  const pct=s.totalBytes?Math.min(100,Math.round(s.doneBytes/s.totalBytes*100)):0,all=!s.needed||s.phase==='done';
+  if(all&&s.skills&&s.skills.pending&&!skillsDone){showSkills(s);return}
+  $('skillsStep').hidden=true;
+  $('fg').style.strokeDashoffset=502.65*(1-(all?1:pct/100));$('pct').textContent=(all?100:pct)+'%';
+  $('m').className=all?'done':s.phase==='error'?'err':'working';
+  $('list').innerHTML=s.models.map((m)=>{const p=Math.min(100,Math.round(m.done/m.bytes*100)),r=m.state==='ready';
+    const st=r?'Ready':m.state==='downloading'?`${p}% · ${spd(m.speed)}`:m.state==='verifying'?'Checking…':m.state==='retrying'?'Reconnecting…':'Waiting';
+    return `<div class="row ${r?'ready':''}"><div class="top"><span class="ic">${ICON[m.id]||'📦'}</span><b>${NAME[m.id]||m.id}</b><span class="st">${st}</span></div><div class="bar"><i style="width:${r?100:p}%"></i></div><div class="what">${m.state==='downloading'?LINE[m.id]+' · '+mb(m.done)+' of '+mb(m.bytes):m.what}</div></div>`}).join('');
+  const act=s.models.find((m)=>m.state==='downloading'),left=Math.max(0,s.totalBytes-s.doneBytes),sp=act?act.speed:0;
+  if(all){$('h').textContent='Tulai is ready';$('sub').textContent='Say "Hey Tulai" any time, or click the robot.'}
+  else if(s.phase==='error'){$('h').textContent='The download stopped';$('sub').textContent='Check your internet connection, then try again. What is already downloaded is kept.'}
+  else if(s.phase==='paused'){$('h').textContent='Paused';$('sub').textContent='Press Resume to continue where it stopped.'}
+  else{$('h').textContent='Getting Tulai ready';$('sub').textContent=act?`${LINE[act.id]}…${sp>0?' about '+Math.max(1,Math.round(left/sp/60))+' min left':''}`:'Starting…'}
+  $('err').hidden=!s.error;$('err').textContent=s.error||'';
+  $('go').hidden=!all;$('retry').hidden=s.phase!=='error';$('pause').hidden=all||s.phase==='error';$('pause').textContent=s.phase==='paused'?'Resume':'Pause';
+  if(all&&!closed){closed=true;setTimeout(()=>{try{window.close()}catch{}},3500)}
+}
+function showSkills(s){
+  $('fg').style.strokeDashoffset=0;$('pct').textContent='100%';$('m').className='done';
+  $('list').style.display='none';$('go').hidden=true;$('pause').hidden=true;$('retry').hidden=true;$('err').hidden=true;$('skillsStep').hidden=false;
+  $('h').textContent='Teach Tulai more skills';$('sub').textContent='The AI is installed. Optional: fine-tune it for the work you do, or skip and do it later.';
+  if(stepShown)return;stepShown=true;
+  $('packs').innerHTML=s.skills.packs.map((p)=>`<label class="row" style="display:block;cursor:pointer"><div class="top"><span class="ic">${p.icon}</span><b>${p.name}</b><input type="checkbox" data-pack="${p.id}" style="width:18px;height:18px"></div><div class="what">${p.summary}</div></label>`).join('');
+}
+async function chooseSkills(action){
+  const ids=[...document.querySelectorAll('[data-pack]')].filter((c)=>c.checked).map((c)=>c.dataset.pack);
+  $('ftNow').disabled=$('ftLater').disabled=true;
+  try{const r=await fetch('/api/setup/skills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(action==='later'?{action:'later'}:{action:'finetune',packs:ids})});const j=await r.json();
+    if(!r.ok){$('ftNote').textContent=(j.error&&j.error.message)||'Could not start.';$('ftNote').style.color='var(--err)';$('ftNow').disabled=$('ftLater').disabled=false;return}
+    skillsDone=true;$('skillsStep').hidden=true;$('h').textContent=action==='later'?'Tulai is ready':'Fine-tuning started';
+    $('sub').textContent=action==='later'?'You can fine-tune any time in Settings, Train your local bot AI, Skill packs.':'Tulai teaches itself in the background. You can use it now and keep the Mac plugged in.';$('go').hidden=false;if(!closed){closed=true;setTimeout(()=>{try{window.close()}catch{}},4500)}
+  }catch(e){$('ftNote').textContent='Could not reach Tulai: '+e.message;$('ftNow').disabled=$('ftLater').disabled=false}
+}
+$('ftNow').onclick=()=>chooseSkills('now');$('ftLater').onclick=()=>chooseSkills('later');
+async function tick(){let s;try{s=await (await fetch('/api/setup')).json()}catch{return}
+  if(!started&&s.needed&&(s.phase==='idle')){started=true;post('start')}
+  draw(s)}
+$('go').onclick=()=>window.close();$('retry').onclick=()=>post('start');$('pause').onclick=()=>post($('pause').textContent==='Resume'?'start':'pause');
+tick();setInterval(tick,600);
+</script></body></html>
