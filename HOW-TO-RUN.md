@@ -25,18 +25,18 @@ cd tools/extra/tulai
 ./setup.sh
 ```
 
-`./setup.sh` is the same as `npm run setup`. It does five things:
+`./setup.sh` is the same as `npm run setup`. It prepares the app and never starts model training:
 
 1. Installs `llama.cpp` and `whisper-cpp` with Homebrew, if they are missing.
 2. Downloads the speech and understanding models listed in `models.json`. Downloads resume if interrupted and are checked with sha256.
 3. Runs `npm install`.
-4. Installs the trainer.
-5. Trains the bot's first brain, which takes about 10 minutes.
+4. Sets up local vector memory and compiles native helpers.
 
-To skip the first training and do it later, use:
+If you choose to train, install the optional trainer and start a run explicitly:
 
 ```bash
-npm run setup -- --skip-first-training
+npm run training:setup
+npm run training:skills
 ```
 
 Models, trained weights, `node_modules` and your private data are never committed. Every clone downloads or builds its own.

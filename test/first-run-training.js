@@ -1,4 +1,4 @@
-// Every install gets the Tulai skills model: the examples and recipe ship in the repo, the installer trains, and the bot trains/activates by itself.
+// Training is opt-in and separate from application setup and builds.
 const fs = require('fs'), os = require('os'), path = require('path'), assert = require('assert');
 const root = path.join(__dirname, '..'), dir = fs.mkdtempSync(path.join(os.tmpdir(), 'first-run-')); process.env.GC_DATA_DIR = dir;
 const bt = require('../bot-training');
@@ -27,8 +27,8 @@ assert(/recipe/.test(fs.readFileSync(path.join(root, 'scripts/finetune.py'), 'ut
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')), files = new Set(pkg.build.files);
 for (const f of ['training-config/skills-recipe.json', 'training-config/rehearsal.json', 'training-config/nlu-examples.json', 'training-config/chat-rehearsal.json', 'training-config/nlu-gate-cases.json', 'training-config/pilot-examples.json', 'scripts/skill-data.py', 'scripts/finetune.py', 'scripts/activation-gate.py', 'scripts/prepare-activation.py', 'scripts/nlu-gate.js', 'scripts/evaluate-finetune.py']) { assert(files.has(f), f + ' must ship with the app'); assert(fs.existsSync(path.join(root, f)), f + ' exists'); }
 assert(pkg.scripts['training:skills'], 'a one-line command exists');
-// 4. the installer trains, can be skipped, and never fails the whole setup over it
-const setup = fs.readFileSync(path.join(root, 'scripts/setup.js'), 'utf8'); assert(/training-run\.js/.test(setup) && /--skip-first-training/.test(setup) && /--skills/.test(setup) && /still succeeds|Nothing is broken/.test(setup));
+// 4. application setup does not install the trainer or start training
+const setup = fs.readFileSync(path.join(root, 'scripts/setup.js'), 'utf8'); assert(!/training-run\.js|setup-training\.js|--skip-first-training/.test(setup));
 // 5. what ships is only synthetic or replayed: no personal data, no secrets, small
 let total = 0; for (const f of fs.readdirSync(path.join(root, 'training-config'))) { const t = fs.readFileSync(path.join(root, 'training-config', f), 'utf8'); total += t.length; assert(!/\/Users\/[a-z]+|sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]+|BEGIN .*PRIVATE KEY|(password|api[_ -]?key)\s*[:=]\s*\S{8,}/i.test(t), f + ' must hold no personal data or secrets'); }
 assert(total < 3e6, 'the training examples stay small enough for git: ' + total);
