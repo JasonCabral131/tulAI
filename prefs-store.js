@@ -2,7 +2,7 @@
 // each only changing the keys it owns, so neither can overwrite the other's settings by accident.
 const fs = require('fs');
 const path = require('path');
-const defaults = { tray: true, shortcut: true, bounds: null, bot: true, botPos: null, voice: { aliases: [], wake: true, speak: true, locale: '', voice: '', rate: 190 } };
+const defaults = { tray: true, shortcut: true, bounds: null, bot: false, botPos: null, voice: { aliases: [], wake: true, speak: true, locale: '', voice: '', rate: 190 } };
 const file = () => path.join(process.env.GC_DATA_DIR, 'prefs.json');
 function load() {
   try { const p = JSON.parse(fs.readFileSync(file(), 'utf8')); return { ...defaults, ...p, voice: { ...defaults.voice, ...(p.voice || {}) } }; } catch { return { ...defaults, voice: { ...defaults.voice } }; }

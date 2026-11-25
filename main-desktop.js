@@ -26,7 +26,9 @@ process.on('unhandledRejection', (e) => errLog('unhandledRejection', e));
 const cleanEnv = () => { const e = { ...process.env }; for (const k of ['PORT', 'GC_DATA_DIR', 'TULAI_ROLE', 'TULAI_BOT_PORT', 'ELECTRON_RUN_AS_NODE']) delete e[k]; return e; };
 const appArgs = () => [...(app.isPackaged ? [] : [app.getAppPath()]), ...process.argv.filter((a) => a.startsWith('--user-data-dir='))];
 async function botUp() { try { const r = await fetch(`http://127.0.0.1:${BOT_PORT}/api/bot/state`, { signal: AbortSignal.timeout(900) }); return r.ok; } catch { return false; } }
-async function ensureBot() { if (process.env.TULAI_NO_BOT === '1' || await botUp()) return; try { spawn(process.execPath, [...appArgs(), '--bot'], { detached: true, stdio: 'ignore', env: cleanEnv() }).unref(); } catch {} }
+// Desktop-only installs never start the bot: TULAI_NO_BOT=1, `./setup.sh --desktop-only` (writes <data>/desktop-only), or an app built with `npm run build:desktop` (ships Resources/models/DESKTOP-ONLY).
+const desktopOnly = () => process.env.TULAI_NO_BOT === '1' || [path.join(app.getPath('userData'), 'desktop-only'), path.join(process.resourcesPath || '', 'models', 'DESKTOP-ONLY')].some((f) => fs.existsSync(f));
+async function ensureBot() { if (desktopOnly() || await botUp()) return; try { spawn(process.execPath, [...appArgs(), '--bot'], { detached: true, stdio: 'ignore', env: cleanEnv() }).unref(); } catch {} }
 function botCall(cmd, arg) { // POST to the bot's local server
   return new Promise((resolve) => { const body = JSON.stringify({ arg }); const r = http.request({ host: '127.0.0.1', port: BOT_PORT, path: '/api/voice/' + cmd, method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } }, (res) => { let d = ''; res.on('data', (c) => (d += c)); res.on('end', () => { try { resolve(JSON.parse(d).result); } catch { resolve(null); } }); }); r.on('error', () => resolve(null)); r.setTimeout(8000, () => r.destroy()); r.end(body); });
 }
@@ -101,7 +103,7 @@ ipcMain.handle('prefs:set', (_e, p) => { // saved to prefs.json; the bot notices
   const patch = {};
   if (typeof p.tray === 'boolean') patch.tray = p.tray;
   if (typeof p.shortcut === 'boolean') patch.shortcut = p.shortcut;
-  if (typeof p.login === 'boolean') app.setLoginItemSettings({ openAtLogin: p.login, args: ['--bot'] }); // at login only the bot starts
+  if (typeof p.login === 'boolean') app.setLoginItemSettings({ openAtLogin: p.login, args: desktopOnly() ? [] : ['--bot'] }); // at login only the bot starts; Desktop itself on a Desktop-only install
   if (typeof p.bot === 'boolean' && p.botChanged === true) patch.bot = p.bot;
   if (p.voice && typeof p.voice === 'object') patch.voice = p.voice;
   if (typeof p.appearance === 'string' && ['neon', 'dark', 'light', 'auto'].includes(p.appearance)) patch.appearance = p.appearance;

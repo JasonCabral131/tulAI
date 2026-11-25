@@ -11,7 +11,16 @@ const BREW = ['/opt/homebrew', '/usr/local'].find((p) => fs.existsSync(path.join
 const BINS = ['llama-server', 'whisper-server', 'whisper-cli'];
 const sh = (c, a) => execFileSync(c, a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 
+function desktopOnly() { // a desktop-only app ships without the bot's engines and models, only a marker that tells Tulai Desktop not to start the bot
+  for (const b of BINS) fs.rmSync(path.join(ROOT, b), { force: true });
+  fs.rmSync(LIB, { recursive: true, force: true }); for (const f of fs.existsSync(ROOT) ? fs.readdirSync(ROOT) : []) if (f.endsWith('.so')) fs.rmSync(path.join(ROOT, f), { force: true });
+  fs.rmSync(MODELS, { recursive: true, force: true }); fs.mkdirSync(MODELS, { recursive: true }); fs.mkdirSync(ROOT, { recursive: true });
+  fs.writeFileSync(path.join(MODELS, 'DESKTOP-ONLY'), 'This Tulai was built without Tulai Bot (npm run build:desktop).\n');
+  console.log('bundle-engines: desktop-only build, no engines or models bundled.');
+}
 function main() {
+  if (process.env.TULAI_DESKTOP_ONLY === '1') return desktopOnly();
+  fs.rmSync(path.join(MODELS, 'DESKTOP-ONLY'), { force: true });
   if (!BREW) { console.log('bundle-engines: llama.cpp not installed here (brew install llama.cpp whisper-cpp); skipping, the app will use Homebrew copies if present.'); return; }
   fs.mkdirSync(LIB, { recursive: true });
   const searchDirs = [];

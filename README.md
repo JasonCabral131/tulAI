@@ -1,8 +1,8 @@
 # Tulai
 
-**New here? See [HOW-TO-RUN.md](HOW-TO-RUN.md)** for setup, running, building, testing and training. Memory and the vector database: [VECTOR-MEMORY.md](VECTOR-MEMORY.md). It uses local SQLite with exact cosine search, not Chroma.
+**New here? Run `./setup.sh` (light, no bot) and see [HOW-TO-RUN.md](HOW-TO-RUN.md)** for setup, running, building, testing and training. Memory and the vector database: [VECTOR-MEMORY.md](VECTOR-MEMORY.md). It uses local SQLite with exact cosine search, not Chroma.
 
-Tulai is two programs in one app, built for software engineers who work behind a company AI gateway.
+Tulai is two programs in one app, built for software engineers who work behind a company AI gateway. Tulai Desktop is installed by default; Tulai Bot is an optional add-on.
 
 | | **Tulai Desktop** | **Tulai Bot** |
 |---|---|---|
@@ -14,23 +14,46 @@ Tulai is two programs in one app, built for software engineers who work behind a
 They are separate operating-system processes that only talk through local calls. Real work (reviewing a merge request, writing a report, going through email, finishing a ticket) is handed from the bot to Desktop, which uses the company AI.
 
 ## Requirements
-- Apple Silicon Mac (M1 or newer), recent macOS, Node 20+, Homebrew.
-- The speech and understanding models (whisper + Qwen) and the llama.cpp/whisper.cpp engines are **never committed** to this repo. The setup step downloads them (sizes and checksums are listed in `models.json`).
+- Apple Silicon Mac (M1 or newer), recent macOS, Node 22+, Xcode Command Line Tools (`xcode-select --install`).
+- **Only if you add Tulai Bot:** Homebrew and about 10 GB free disk. The speech and understanding models (whisper + Qwen, about 2.7 GB) and the llama.cpp/whisper.cpp engines are **never committed** to this repo. Setup downloads them (sizes and checksums are listed in `models.json`).
 - The app is unsigned (ad-hoc). On another Mac: right-click → Open the first time.
 
 ## Install (fresh clone)
+
+**Tulai Bot is optional, and it is not installed by default.** It is the heavy part (local engines, about 2.7 GB of models, about 3 GB of RAM while running). The default install is just Tulai Desktop, and that is a complete, supported setup.
+
+| | Default: Desktop only | With the bot |
+|---|---|---|
+| Command | `./setup.sh` | `./setup.sh --bot` |
+| Downloads | npm packages only | npm packages, llama.cpp + whisper-cpp (Homebrew), ~2.7 GB of models |
+| You get | Tulai Desktop: chat, agent, embedded browser, GitHub/GitLab/Jira tools | Desktop **plus** Tulai Bot: floating robot, "Hey Tulai" voice, meeting notes, reminders, local AI, skills training |
+| Build | `npm run build:desktop` (or `npm run dmg:desktop`) | `npm run build` (or `npm run dmg`) |
+
+### Default: Desktop only
 ```bash
 git clone <your-repo> && cd <repo>
-./setup.sh              # installs app prerequisites; does not train
+./setup.sh              # same as npm run setup; no bot, no models, never trains
+npm start               # run from source (the bot is not started)
+npm run build:desktop   # or build a smaller dist/mac-arm64/Tulai.app without engines or models
+```
+- Nothing bot-related is downloaded and Homebrew is not needed.
+- Setup remembers the choice (`~/Library/Application Support/gateway-chat/desktop-only`), so Tulai Desktop never starts the bot. An app built with `build:desktop` carries the same choice inside it, so it works the same on other Macs.
+- Choose an AI in **Settings → AI engines**: your company gateway, a CLI you are signed in to (Claude Code, Codex, Gemini CLI), or an API key. The built-in "our trained AI" runs on the bot's local model, which this install does not have.
+- Without the bot there is no voice, floating robot, meeting notes, reminders or local skills training.
+
+### With the bot
+```bash
+./setup.sh --bot        # same as npm run setup:bot
                         #  - brew install llama.cpp whisper-cpp (if missing)
                         #  - downloads the models from models.json (resumable, sha256-verified)
-                        #  - npm install
-./setup.sh --build      # installs prerequisites and builds Tulai.app; does not train
+                        #  - npm install, vector memory, native helpers
+npm start               # Desktop starts the bot too
+npm run build           # app with the engines and models bundled (./setup.sh --bot --build does both)
 ```
-Llama and whisper are bundled **inside** the built app and start/stop together with Tulai Bot, so the installed app needs no Homebrew.
+You can run this any time after a Desktop-only install: it downloads what is missing and removes the Desktop-only marker. Llama and whisper are bundled **inside** the built app and start/stop together with Tulai Bot, so the installed app needs no Homebrew.
 
 ## Optional local skills training
-Setup and build never start model training. To train explicitly on Apple Silicon, run `npm run training:setup` once, then `npm run training:skills` when you choose. Training data and weights stay local; weights are never committed.
+Needs the bot (`./setup.sh --bot`). Setup and build never start model training. To train explicitly on Apple Silicon, run `npm run training:setup` once, then `npm run training:skills` when you choose. Training data and weights stay local; weights are never committed.
 
 - `npm run training:setup` installs the optional MLX trainer and converter.
 - `npm run training:skills` starts a training run, evaluates it, and prepares activation only if it passes the regression gate.
@@ -41,7 +64,8 @@ Setup and build never start model training. To train explicitly on Apple Silicon
 ## Build, check
 ```bash
 npm run verify          # syntax + "is every file packaged" + all tests (no mic, network or gateway needed)
-npm run build           # downloads missing models, compiles the voice helper, bundles engines + models, builds dist/mac-arm64/Tulai.app
+npm run build:desktop   # Desktop-only app: no engines or models
+npm run build           # with the bot: downloads missing models, compiles the voice helper, bundles engines + models, builds dist/mac-arm64/Tulai.app
 npm run smoke           # starts the BUILT app in a private folder and checks it end to end
 npm run models:check    # are all models present and valid?
 npm run repo:check      # before pushing: fails if a model, build or private file would be committed
@@ -72,9 +96,10 @@ Open apps, websites and projects ("open my mb-mobile project in VS Code"), Chrom
 
 ## Troubleshooting
 - Nothing answers to "Hey Tulai": Settings → Diagnostics → Tulai health; then `voice.log` (what it heard) and `brain.log`.
-- "Tulai Bot is not running": open the Tulai app again (it restarts the bot), or use the menu bar icon.
+- "Tulai Bot is not running": expected on a Desktop-only install (`./setup.sh --bot` adds it). Otherwise open the Tulai app again (it restarts the bot), or use the menu bar icon.
 - Meeting notes only hear you: allow Screen & System Audio Recording, then restart Tulai.
-- Slow or odd behaviour on a Mac under memory pressure: the bot warns with smoke over its head; closing Chrome tabs helps. Tulai itself uses about 3 GB for its two models.
+- Slow or odd behaviour on a Mac under memory pressure: the bot warns with smoke over its head; closing Chrome tabs helps. Tulai itself uses about 3 GB for its two models. If that is too much, run `./setup.sh` (without `--bot`) to go back to Desktop only.
+- Setup is too heavy or the model download fails: plain `./setup.sh` installs Desktop only; add the bot later with `./setup.sh --bot`.
 
 ## Known limits
 - The embedded model is small (3B). Anything needing exact or current facts, long Tagalog answers, or real analysis goes to Tulai Desktop.

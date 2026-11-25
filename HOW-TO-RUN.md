@@ -5,32 +5,46 @@ Tulai is one Electron app that runs as two programs:
 - **Tulai Desktop**: the chat app with the coding agent.
 - **Tulai Bot**: the floating robot, voice, meeting notes and reminders. It answers with its own trained AI on this Mac.
 
-Starting Desktop also starts the Bot. The source lives in `map-governance-ui/tools/extra/tulai/`: edit, test and deploy from there. The old `~/Desktop/gateway-chat` folder is no longer used.
+The Bot is optional and **not installed by default**: it is the heavy part (local engines and about 2.7 GB of models). When it is installed, starting Desktop also starts the Bot.
 
 ## 1. What you need
 
-- **Mac:** Apple Silicon (M1 or newer), recent macOS, about 10 GB free disk.
+- **Mac:** Apple Silicon (M1 or newer), recent macOS, about 1 GB free disk (about 10 GB with the Bot).
 - **Node.js 22 or newer:** `brew install node`.
-- **Homebrew:** setup uses it to install `llama.cpp` and `whisper-cpp` if they are missing.
+- **Homebrew:** setup uses it to install `llama.cpp` and `whisper-cpp` if they are missing. Only needed with `--bot`.
+- **Xcode Command Line Tools:** `xcode-select --install` (compiles the OCR and PDF helpers).
 - **Python 3:** only needed to train the bot's AI.
 - **Company VPN:** only for Jira, GitLab and the company AI gateway.
 
 ## 2. First time setup
 
 ```bash
-cd tools/extra/tulai
+cd tulai   # the folder you cloned
 ```
 
 ```bash
-./setup.sh
+./setup.sh          # Desktop only (default, light)
+./setup.sh --bot    # Desktop + Tulai Bot (heavy)
 ```
 
-`./setup.sh` is the same as `npm run setup`. It prepares the app and never starts model training:
+`./setup.sh` is the same as `npm run setup`; `./setup.sh --bot` is `npm run setup:bot`. Neither ever starts model training.
+
+**Desktop only (default):**
+
+1. Runs `npm install`.
+2. Compiles the OCR and PDF helpers.
+3. Remembers the choice (`~/Library/Application Support/gateway-chat/desktop-only`) so Desktop never starts the Bot.
+
+Nothing bot-related is downloaded. Pick an AI in **Settings → AI engines** (company gateway, a CLI such as Claude Code, or an API key), because the built-in local AI belongs to the Bot.
+
+**With `--bot`**, it also:
 
 1. Installs `llama.cpp` and `whisper-cpp` with Homebrew, if they are missing.
 2. Downloads the speech and understanding models listed in `models.json`. Downloads resume if interrupted and are checked with sha256.
-3. Runs `npm install`.
-4. Sets up local vector memory and compiles native helpers.
+3. Sets up local vector memory and compiles the voice helper.
+4. Removes the Desktop-only marker, so you can add the Bot to a Desktop-only install at any time.
+
+### Training (optional, needs the Bot)
 
 If you choose to train, install the optional trainer and start a run explicitly:
 
@@ -47,6 +61,12 @@ Quit the installed `Tulai.app` first. Otherwise both copies try to use the same 
 
 ```bash
 npm start
+```
+
+On a Desktop-only install `npm start` does not start the Bot. To skip the Bot for one run on a full install:
+
+```bash
+npm run start:desktop
 ```
 
 To start only the Bot:
@@ -66,10 +86,11 @@ Both copies keep their data in `~/Library/Application Support/gateway-chat/`: se
 ## 4. Build the app
 
 ```bash
-npm run build
+npm run build:desktop   # Desktop only: no engines or models inside
+npm run build           # with the Bot
 ```
 
-`npm run build` creates `dist/mac-arm64/Tulai.app`. It downloads missing models, compiles the helpers (OCR, PDF text, listening) and bundles the engines into the app. Install the result with:
+Both create `dist/mac-arm64/Tulai.app`. `npm run build` also downloads missing models, compiles the helpers (OCR, PDF text, listening) and bundles the engines into the app. Install the result with:
 
 ```bash
 cp -R dist/mac-arm64/Tulai.app ~/Desktop/Tulai.app
@@ -78,7 +99,7 @@ cp -R dist/mac-arm64/Tulai.app ~/Desktop/Tulai.app
 To make an installer instead:
 
 ```bash
-npm run dmg
+npm run dmg:desktop     # or npm run dmg with the Bot
 ```
 
 The app is unsigned. On another Mac, right-click it and choose **Open** the first time.
@@ -109,6 +130,8 @@ npm test
 On a fresh clone, two picture-reading tests fail until the helpers are built: run `npm run build` once.
 
 ## 7. Train the bot's AI
+
+Needs the Bot: run `./setup.sh --bot` first.
 
 ```bash
 npm run training:setup

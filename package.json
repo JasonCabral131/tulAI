@@ -6,6 +6,9 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --mac --dir",
+    "build:desktop": "TULAI_DESKTOP_ONLY=1 npm run build",
+    "dmg:desktop": "TULAI_DESKTOP_ONLY=1 npm run dmg",
+    "start:desktop": "TULAI_NO_BOT=1 electron .",
     "prebuild": "node scripts/repo-check.js && node scripts/fetch-models.js && node build/compile-helpers.js && node build/bundle-engines.js && node scripts/pack-versions.js",
     "test": "node scripts/test-all.js",
     "test:core": "node test/run.js",
@@ -14,6 +17,8 @@
     "verify": "npm run check && npm test",
     "smoke": "node scripts/smoke.js",
     "setup": "node scripts/setup.js",
+    "setup:desktop": "node scripts/setup.js --desktop-only",
+    "setup:bot": "node scripts/setup.js --bot",
     "models": "node scripts/fetch-models.js",
     "models:check": "node scripts/fetch-models.js --check",
     "repo:check": "node scripts/repo-check.js",
@@ -38,6 +43,7 @@
     "productName": "Tulai",
     "files": [
       "main.js",
+      "sandbox.js",
       "scenarios.js",
       "human-rules.js",
       "missed.js",

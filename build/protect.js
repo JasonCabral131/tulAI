@@ -3,6 +3,13 @@
 // only loads plain JavaScript there. The pages in public/ run in the window and are text by nature.
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process'), asar = require('@electron/asar');
 const KEEP = new Set(['preload.js']);
+// slim installers ship no models, but a Desktop-only build keeps its marker so the installed app never starts the bot
+function slim(res) {
+  const models = path.join(res, 'models'), marker = path.join(models, 'DESKTOP-ONLY');
+  if (!fs.existsSync(marker)) return fs.rmSync(models, { recursive: true, force: true });
+  for (const f of fs.readdirSync(models)) if (f !== 'DESKTOP-ONLY') fs.rmSync(path.join(models, f), { recursive: true, force: true });
+}
+exports.slim = slim;
 exports.default = async function protect(ctx) {
   const app = fs.readdirSync(ctx.appOutDir).find((f) => f.endsWith('.app')); if (!app) throw new Error('no .app found in ' + ctx.appOutDir);
   const res = path.join(ctx.appOutDir, app, 'Contents', 'Resources'), pack = path.join(res, 'app.asar'), tmp = path.join(ctx.appOutDir, '_src');
@@ -17,6 +24,6 @@ exports.default = async function protect(ctx) {
   for (const f of files) { const jsc = path.join(tmp, f.replace(/\.js$/, '.jsc')); if (!fs.existsSync(jsc)) throw new Error('not compiled: ' + f); fs.writeFileSync(path.join(tmp, f), `require('bytenode');module.exports=require('./${path.basename(jsc)}');\n`); n++; }
   const unpacked = fs.existsSync(pack + '.unpacked');
   fs.rmSync(pack); await asar.createPackageWithOptions(tmp, pack, unpacked ? { unpack: '{**/*.node,**/*.dylib}' } : {}); fs.rmSync(tmp, { recursive: true, force: true });
-  if (process.env.TULAI_SLIM !== '0') { fs.rmSync(path.join(res, 'models'), { recursive: true, force: true }); console.log('  • slim installer: the AI models download on first launch'); }
+  if (process.env.TULAI_SLIM !== '0') { slim(res); console.log('  • slim installer: the AI models download on first launch'); }
   console.log(`  • source protected: ${n} files compiled to bytecode`);
 };

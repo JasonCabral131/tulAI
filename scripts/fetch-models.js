@@ -25,6 +25,7 @@ async function ensure(m) {
   if (got !== m.sha256) { fs.rmSync(part); console.log(`WRONG (${got.slice(0, 12)}…). Removed it; run again.`); return false; }
   fs.renameSync(part, file); console.log('ok'); return true;
 }
+if (process.env.TULAI_DESKTOP_ONLY === '1') { console.log('Tulai models: skipped (desktop-only: the bot and its local AI are not installed).'); process.exit(0); }
 (async () => {
   console.log(`Tulai models → ${DIR}`); let ok = true;
   for (const m of manifest.models) { try { if (!(await ensure(m)) && m.required) ok = false; } catch (e) { console.log('  ✗', m.file, e.message); if (m.required) ok = false; } }
